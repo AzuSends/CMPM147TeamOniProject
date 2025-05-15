@@ -26,9 +26,14 @@ function setup() {
 }
 
 function draw() {
+  // move the fish along the x-axis
   background(0, 0, 0);
   for (let fish of fishes) {
-    fish.draw();
+    fish.draw(canvas.midPoint);
+  }
+  canvas.midPoint.x -= 1;
+  if (canvas.midPoint.x < 0) {
+    canvas.midPoint.x = canvas.width;
   }
 }
 
@@ -66,8 +71,8 @@ class Fish {
       pectoralFin2: createVector(-w * random(-0.7, 0), random(-h / 2, h / 2)),
     };
   }
-  draw() {
-    let pts = this.calculatePoints(canvas.midPoint);
+  draw(midpoint) {
+    let pts = this.calculatePoints(midpoint);
     this.drawBody(pts);
     this.drawEye(pts);
     this.drawFin(pts);
