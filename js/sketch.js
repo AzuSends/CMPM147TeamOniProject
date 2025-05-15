@@ -8,6 +8,13 @@ let skySeed = 0;
 let amplitude = 20;
 let freq = 0.05;
 
+//player vars
+let player;
+let speed = 5;
+let posX = 80;
+
+let movingLeft = false;
+let movingRight = false;
 
 function setup() {
     noSmooth();
@@ -29,6 +36,9 @@ function preload() {
     dockMid = loadImage('../assets/dockMid_x5.png');
     dockMidLeg = loadImage('../assets/dockMidLeg_x5.png');
     dockLeg = loadImage('../assets/dockLeg_x5.png');
+
+    //player img
+    player = loadImage('../assets/fish_x5.png');
 }
 
 function draw() {
@@ -49,6 +59,37 @@ function draw() {
     image(dockLeg, 240, h - 80);
     image(dockLeg, 480, h - 80);
 
+    //place player sprite
+    image(player, posX, h - 160);
+
+    //move player
+    if (movingLeft) {
+        posX -= speed;
+    }
+
+    // Move right
+    if (movingRight) {
+        posX += speed;
+    }
+}
+
+//keyBinds
+function keyPressed() {
+    if (key === 'a' || key === 'A') {
+        movingLeft = true;
+    }
+    if (key === 'd' || key === 'D') {
+        movingRight = true;
+    }
+}
+
+function keyReleased() {
+    if (key === 'a' || key === 'A') {
+        movingLeft = false;
+    }
+    if (key === 'd' || key === 'D') {
+        movingRight = false;
+    }
 }
 
 //perlinSky() and regenerate() functions from corvuscorae reflected clouds project
