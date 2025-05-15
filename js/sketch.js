@@ -42,7 +42,9 @@ class Fish {
     let w = this.body.width / 2;
     let h = this.body.height / 2;
     this.offsets = {
-      p0: createVector(-w, 0),
+      phtop: createVector(-w, -random(0, h / 2)),
+      phbot: createVector(-w, random(0, h / 2)),
+      phmid: createVector(random(-w / 1.1, -w / 2), 0), // mouth
       b0: createVector(random(-w, w), -h),
       p1: createVector(w, 0),
       b1: createVector(random(-w, w), h),
@@ -51,19 +53,19 @@ class Fish {
   draw() {
     let pts = this.calculatePoints(canvas.midPoint);
     this.drawBody(pts);
+    // this.drawPoints(pts);
   }
 
   calculatePoints(midPoint) {
     let addMidPoint = (point) => {
       return createVector(midPoint.x + point.x, midPoint.y + point.y);
     };
+    let pts = {};
+    for (let [k, v] of Object.entries(this.offsets)) {
+      pts[k] = addMidPoint(this.offsets[k]);
+    }
     // calculate the points of the fish body in the canvas
-    return {
-      p0: addMidPoint(this.offsets.p0),
-      b0: addMidPoint(this.offsets.b0),
-      p1: addMidPoint(this.offsets.p1),
-      b1: addMidPoint(this.offsets.b1),
-    };
+    return pts;
 
     /*
     b0           b4           p9        p8        b3
@@ -72,9 +74,9 @@ class Fish {
     *p7   t      |                               |
     |            ----------------+b0--------------
     |            |                               |
-    |     a      |                               |
-    *p12       p0*       b   o   d   y           * p1 
-    |            |                               |
+    |     a phtop*                               |
+    *p12         |         b   o   d   y         * p1 
+    |       phbot*                               |
     |     i      |                               |
     |            ----------------+b1--------------
     *p6          |                               |
@@ -84,15 +86,32 @@ class Fish {
     */
   }
 
+  drawPoints(pts) {
+    stroke(255, 100, 100);
+    fill(100, 100, 100);
+    strokeWeight(5);
+    for (let [k, v] of Object.entries(pts)) {
+      point(v.x, v.y);
+      text(k, v.x + 5, v.y - 5);
+    }
+    strokeWeight(1);
+  }
+
   // draws fish body
   drawBody(pts) {
-    strokeWeight(1);
+    // strokeWeight(1);
+    noStroke();
     fill(this.body.color);
     beginShape();
-    vertex(pts.p0.x, pts.p0.y);
+    // body
+    vertex(pts.phtop.x, pts.phtop.y);
     quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
-    quadraticVertex(pts.b1.x, pts.b1.y, pts.p0.x, pts.p0.y);
+    quadraticVertex(pts.b1.x, pts.b1.y, pts.phbot.x, pts.phbot.y);
 
+    vertex(pts.phbot.x, pts.phbot.y);
+    quadraticVertex(pts.phmid.x, pts.phmid.y, pts.phtop.x, pts.phtop.y);
+
+    // vertex(pts.phtop.x, pts.phtop.y);
     endShape();
   }
 }
