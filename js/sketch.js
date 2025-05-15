@@ -49,23 +49,23 @@ class Fish {
     this.offsets = {
       phtop: createVector(-w, -random(0, h / 2)),
       phbot: createVector(-w, random(0, h / 2)),
-      phmid: createVector(-random(w / 2, w / 5), 0),
+      phmid: createVector(-random(w / 2.4, w * 1.2), random(-h / 2.5, h / 2.5)),
       p1: createVector(w, 0),
 
-      // cubic bezier control points
+      // // cubic bezier control points
       b0a: createVector(random(-w, 0), -h),
       b0b: createVector(random(0, w), -h / 2),
 
       b1a: createVector(random(0, w), h / 2),
       b1b: createVector(random(-w, 0), h),
 
-      lipTop1: createVector(-w * random(1, 1.3), -h / 2), // first control for top lip
-      lipTop2: createVector(-w * random(0.8, 0.9), -h / 4), // second control for top lip
+      // lipTop1: createVector(-w * random(1, 1.3), -h / 2), // first control for top lip
+      // lipTop2: createVector(-w * random(0.8, 0.9), -h / 4), // second control for top lip
 
-      lipBot1: createVector(-w * random(0.8, 0.9), h / 4), // first control for bottom lip
-      lipBot2: createVector(-w * random(1, 1.3), h / 2), // second control for bottom lip
+      // lipBot1: createVector(-w * random(0.8, 0.9), h / 4), // first control for bottom lip
+      // lipBot2: createVector(-w * random(1, 1.3), h / 2), // second control for bottom lip
 
-      eye: createVector(-w * random(0.5, 0.8), random(-h / 4, -h / 8)),
+      eye: createVector(-w * random(0.4, 0.6), random(-h / 4, -h / 8)),
       pectoralFin0: createVector(-w * 0.3, random(-h / 2, -h / 8)),
       pectoralFin1: createVector(-w * 0.3, random(h / 2, h / 8)),
       pectoralFin2: createVector(-w * random(-0.7, 0), random(-h / 2, h / 2)),
@@ -130,25 +130,38 @@ class Fish {
       pts.phbot.y
     );
 
-    // two lips
-    // upper lip
+    // vertex(pts.phbot.x, pts.phbot.y);
     bezierVertex(
-      pts.lipTop1.x,
-      pts.lipTop1.y,
-      pts.lipTop2.x,
-      pts.lipTop2.y,
       pts.phmid.x,
-      pts.phmid.y
-    );
-    // lower lip
-    bezierVertex(
-      pts.lipBot1.x,
-      pts.lipBot1.y,
-      pts.lipBot2.x,
-      pts.lipBot2.y,
+      pts.phmid.y,
+      pts.phmid.x,
+      pts.phmid.y,
       pts.phtop.x,
       pts.phtop.y
     );
+
+    // vertex(pts.phmid.x, pts.phmid.y);
+    // vertex(pts.phtop.x, pts.phtop.y);
+
+    // two lips
+    // upper lip
+    // bezierVertex(
+    //   pts.lipTop1.x,
+    //   pts.lipTop1.y,
+    //   pts.lipTop2.x,
+    //   pts.lipTop2.y,
+    //   pts.phmid.x,
+    //   pts.phmid.y
+    // );
+    // // lower lip
+    // bezierVertex(
+    //   pts.lipBot1.x,
+    //   pts.lipBot1.y,
+    //   pts.lipBot2.x,
+    //   pts.lipBot2.y,
+    //   pts.phtop.x,
+    //   pts.phtop.y
+    // );
 
     endShape();
   }
@@ -157,7 +170,7 @@ class Fish {
     stroke(this.body.color);
     strokeWeight(1);
     fill("white");
-    ellipse(pts.eye.x, pts.eye.y, this.body.height / 5);
+    ellipse(pts.eye.x, pts.eye.y, this.body.height / 7);
     fill("black");
     ellipse(pts.eye.x, pts.eye.y, this.body.height / 10);
   }
