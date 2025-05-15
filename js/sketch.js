@@ -61,12 +61,16 @@ class Fish {
       lipBot2: createVector(-w * random(1, 1.3), h / 2), // second control for bottom lip
 
       eye: createVector(-w * random(0.5, 0.8), random(-h / 4, -h / 8)),
+      pectoralFin0: createVector(-w * 0.3, random(-h / 2, -h / 8)),
+      pectoralFin1: createVector(-w * 0.3, random(h / 2, h / 8)),
+      pectoralFin2: createVector(-w * random(-0.7, 0), random(-h / 2, h / 2)),
     };
   }
   draw() {
     let pts = this.calculatePoints(canvas.midPoint);
     this.drawBody(pts);
     this.drawEye(pts);
+    this.drawFin(pts);
     // this.drawPoints(pts);
   }
 
@@ -145,9 +149,28 @@ class Fish {
   }
 
   drawEye(pts) {
+    stroke(this.body.color);
+    strokeWeight(1);
     fill("white");
     ellipse(pts.eye.x, pts.eye.y, this.body.height / 5);
     fill("black");
     ellipse(pts.eye.x, pts.eye.y, this.body.height / 10);
+  }
+
+  drawFin(pts) {
+    stroke(this.body.color);
+    strokeWeight(1);
+    fill("white");
+    beginShape();
+    vertex(pts.pectoralFin0.x, pts.pectoralFin0.y);
+    quadraticVertex(
+      pts.pectoralFin2.x,
+      pts.pectoralFin2.y,
+      pts.pectoralFin1.x,
+      pts.pectoralFin1.y
+    );
+    // vertex(pts.pectoralFin1.x, pts.pectoralFin1.y);
+    // vertex(pts.pectoralFin2.x, pts.pectoralFin2.y);
+    endShape(CLOSE);
   }
 }
