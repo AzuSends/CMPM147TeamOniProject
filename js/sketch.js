@@ -54,21 +54,20 @@ class Fish {
       b1a: createVector(random(0, w), h / 2),
       b1b: createVector(random(-w, 0), h),
 
-      // // curve for head
-      // h0a: createVector(-w * 1.1, h / 2),
-      // h0b: createVector(-w * 1.1, -h / 2),
-
       lipTop1: createVector(-w * random(1, 1.3), -h / 2), // first control for top lip
       lipTop2: createVector(-w * random(0.8, 0.9), -h / 4), // second control for top lip
 
       lipBot1: createVector(-w * random(0.8, 0.9), h / 4), // first control for bottom lip
       lipBot2: createVector(-w * random(1, 1.3), h / 2), // second control for bottom lip
+
+      eye: createVector(-w * random(0.5, 0.8), random(-h / 4, -h / 8)),
     };
   }
   draw() {
     let pts = this.calculatePoints(canvas.midPoint);
     this.drawBody(pts);
-    this.drawPoints(pts);
+    this.drawEye(pts);
+    // this.drawPoints(pts);
   }
 
   calculatePoints(midPoint) {
@@ -142,26 +141,13 @@ class Fish {
       pts.phtop.y
     );
 
-    // front curve (lips) back to phtop
-    // bezierVertex(
-    //   pts.h0a.x,
-    //   pts.h0a.y,
-    //   pts.h0b.x,
-    //   pts.h0b.y,
-    //   pts.phtop.x,
-    //   pts.phtop.y
-    // );
-
-    // bezierVertex(
-    //   pts.phmid.x,
-    //   pts.phmid.y,
-    //   pts.phmid.x,
-    //   pts.phmid.y,
-    //   pts.phtop.x,
-    //   pts.phtop.y
-    // );
-
-    // vertex(pts.phtop.x, pts.phtop.y);
     endShape();
+  }
+
+  drawEye(pts) {
+    fill("white");
+    ellipse(pts.eye.x, pts.eye.y, this.body.height / 5);
+    fill("black");
+    ellipse(pts.eye.x, pts.eye.y, this.body.height / 10);
   }
 }
