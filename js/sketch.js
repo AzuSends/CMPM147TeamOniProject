@@ -44,16 +44,31 @@ class Fish {
     this.offsets = {
       phtop: createVector(-w, -random(0, h / 2)),
       phbot: createVector(-w, random(0, h / 2)),
-      phmid: createVector(random(-w / 1.1, -w / 2), 0), // mouth
-      b0: createVector(random(-w, w), -h),
+      phmid: createVector(-random(w / 2, w / 5), 0),
       p1: createVector(w, 0),
-      b1: createVector(random(-w, w), h),
+
+      // cubic bezier control points
+      b0a: createVector(random(-w, 0), -h),
+      b0b: createVector(random(0, w), -h / 2),
+
+      b1a: createVector(random(0, w), h / 2),
+      b1b: createVector(random(-w, 0), h),
+
+      // // curve for head
+      // h0a: createVector(-w * 1.1, h / 2),
+      // h0b: createVector(-w * 1.1, -h / 2),
+
+      lipTop1: createVector(-w * random(1, 1.3), -h / 2), // first control for top lip
+      lipTop2: createVector(-w * random(0.8, 0.9), -h / 4), // second control for top lip
+
+      lipBot1: createVector(-w * random(0.8, 0.9), h / 4), // first control for bottom lip
+      lipBot2: createVector(-w * random(1, 1.3), h / 2), // second control for bottom lip
     };
   }
   draw() {
     let pts = this.calculatePoints(canvas.midPoint);
     this.drawBody(pts);
-    // this.drawPoints(pts);
+    this.drawPoints(pts);
   }
 
   calculatePoints(midPoint) {
@@ -66,30 +81,12 @@ class Fish {
     }
     // calculate the points of the fish body in the canvas
     return pts;
-
-    /*
-    b0           b4           p9        p8        b3
-    +------------+------------*--------*---------+              
-    |            |            f  i  n            |
-    *p7   t      |                               |
-    |            ----------------+b0--------------
-    |            |                               |
-    |     a phtop*                               |
-    *p12         |         b   o   d   y         * p1 
-    |       phbot*                               |
-    |     i      |                               |
-    |            ----------------+b1--------------
-    *p6          |                               |
-    |     l      |            f  i  n            |
-    +------------+------------*--------*---------+
-    b1          b7            p11      p10        b2
-    */
   }
 
   drawPoints(pts) {
     stroke(255, 100, 100);
     fill(100, 100, 100);
-    strokeWeight(5);
+    strokeWeight(2);
     for (let [k, v] of Object.entries(pts)) {
       point(v.x, v.y);
       text(k, v.x + 5, v.y - 5);
@@ -105,11 +102,64 @@ class Fish {
     beginShape();
     // body
     vertex(pts.phtop.x, pts.phtop.y);
-    quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
-    quadraticVertex(pts.b1.x, pts.b1.y, pts.phbot.x, pts.phbot.y);
+    // top curve to p1
+    bezierVertex(
+      pts.b0a.x,
+      pts.b0a.y,
+      pts.b0b.x,
+      pts.b0b.y,
+      pts.p1.x,
+      pts.p1.y
+    );
 
-    vertex(pts.phbot.x, pts.phbot.y);
-    quadraticVertex(pts.phmid.x, pts.phmid.y, pts.phtop.x, pts.phtop.y);
+    // bottom curve back to phbot
+    bezierVertex(
+      pts.b1a.x,
+      pts.b1a.y,
+      pts.b1b.x,
+      pts.b1b.y,
+      pts.phbot.x,
+      pts.phbot.y
+    );
+
+    // two lips
+    // upper lip
+    bezierVertex(
+      pts.lipTop1.x,
+      pts.lipTop1.y,
+      pts.lipTop2.x,
+      pts.lipTop2.y,
+      pts.phmid.x,
+      pts.phmid.y
+    );
+    // lower lip
+    bezierVertex(
+      pts.lipBot1.x,
+      pts.lipBot1.y,
+      pts.lipBot2.x,
+      pts.lipBot2.y,
+      pts.phtop.x,
+      pts.phtop.y
+    );
+
+    // front curve (lips) back to phtop
+    // bezierVertex(
+    //   pts.h0a.x,
+    //   pts.h0a.y,
+    //   pts.h0b.x,
+    //   pts.h0b.y,
+    //   pts.phtop.x,
+    //   pts.phtop.y
+    // );
+
+    // bezierVertex(
+    //   pts.phmid.x,
+    //   pts.phmid.y,
+    //   pts.phmid.x,
+    //   pts.phmid.y,
+    //   pts.phtop.x,
+    //   pts.phtop.y
+    // );
 
     // vertex(pts.phtop.x, pts.phtop.y);
     endShape();
