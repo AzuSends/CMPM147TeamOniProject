@@ -5,9 +5,8 @@ const h = 400;
 
 let skySeed = 0;
 
-let field;
-let fieldScroll = w;
-let speed = 1;  // not very tunable atm
+let amplitude = 20;
+let freq = 0.05;
 
 
 function setup() {
@@ -16,14 +15,13 @@ function setup() {
     //setup() from corvuscorae reflected clouds project
     createCanvas(w, h);
   
-    perlinSky();
-    noLoop();  // <-- since this demo doesn't need draw()
-    
     createButton("reimagine").mousePressed(() => regenerate());
+    regenerate();
 }
 
 function draw() {
-    
+    clear();
+    perlinSky();
 }
 
 //perlinSky() and regenerate() functions from corvuscorae reflected clouds project
@@ -33,14 +31,15 @@ function perlinSky() {
     let scale = 0.09;
     noiseSeed(skySeed);
   
+    let drift = amplitude * sin(frameCount * freq);
     for (let y = 0; y < h / 2; y++) {  // shifted up to reflect at horizon
         for (let x = 0; x < w; x++) {
             // modify scale along y-axis, squishing it as y gets larger
             let mod = map(y, 0, h / 2, 10, 1);
             let squish = scale / mod;    
             
-            let nx = squish * x;
-            let ny = squish * y;
+            let nx = squish * (x + drift) + skySeed;
+            let ny = squish * y + skySeed * 0.5;
             
             let c = level * noise(nx, ny);
             
@@ -53,11 +52,6 @@ function perlinSky() {
 }
   
 function regenerate() {
-    clear();
-
     // random seeds
     skySeed = random(0, 2556);
-
-    // generate
-    perlinSky();
 }
