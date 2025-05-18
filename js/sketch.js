@@ -19,7 +19,7 @@ function setup() {
 function draw() {
     background(173, 216, 230)
     createSceneObjectsTemp()
-    if (castProgress < bezx.length) {
+    if (castProgress <= bezx.length) {
         doCastAnimation()
     }
 
