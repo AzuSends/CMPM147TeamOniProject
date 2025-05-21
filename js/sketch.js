@@ -31,7 +31,7 @@ function draw() {
   for (let fish of fishes) {
     fish.draw(canvas.midPoint);
   }
-  // canvas.midPoint.x -= 1;
+  canvas.midPoint.x -= 1;
   if (canvas.midPoint.x < 0) {
     canvas.midPoint.x = canvas.width;
   }
@@ -49,46 +49,51 @@ class Fish {
     let w = this.body.width / 2;
     let h = this.body.height / 2;
 
+    this.bodyPoints = this.generateBody(this.body.width, this.body.height);
+
     // defines area of possible fin positions
-    this.fins = {
+    this.finConfig = {
       pectoral: {
         start: createVector(-w * 0.3, h * 0.5),
         end: createVector(-w * 0.3, -h * 0.5),
+        midpoint: createVector(-w * 0.3, 0),
+        width: w * 0.25,
+        height: h,
+        rotation: -PI / 2,
       },
       pelvic: {
-        start: createVector(-w * 0.4, h * 0.5),
-        end: createVector(w * 0.2, h * 0.2),
-        heightScale: 0.8,
+        midpoint: createVector(-w * 0.2, this.bodyPoints.mouthbot.y),
+        width: w * 0.5,
+        height: h * 0.8,
+        rotation: 0,
       },
       tail: {
-        start: createVector(w * 0.85, h * 0.5),
-        end: createVector(w * 0.85, -h * 0.5),
+        midpoint: this.bodyPoints.tail,
+        width: w / 4,
+        height: h,
+        rotation: -PI / 2,
       },
       dorsal: {
-        start: createVector(w * 0.5, -h * random(0, 0.5)),
-        end: createVector(-w * 0.5, -h * 0.5),
-        //heightScale: 0.5,
+        midpoint: createVector(-w * 0.2, this.bodyPoints.mouthtop.y),
+        width: w / 2,
+        height: h,
+        rotation: PI,
       },
     };
-    for (let fin of Object.values(this.fins)) {
-      let { finType, ...finPoints } = this.generateFin(fin.start, fin.end);
-      fin.points = this.localToWorldSpace(
-        fin.start,
-        fin.end,
-        finPoints,
-        fin.heightScale
+
+    // generate the fins based on the finConfig
+    for (let fin of Object.values(this.finConfig)) {
+      let { finType, ...finPoints } = this.generateFin(
+        fin.width,
+        fin.height,
+        fin.rotation,
+        fin.midpoint
       );
+      // adds fin.type and fin.points to fin object
+      fin.points = finPoints;
       fin.type = finType;
     }
-    console.log(this.fins);
-
-    this.bodyPoints = this.generateBody(this.body.width, this.body.height);
-    // let pectoralFinStart = createVector(-w * 0.3, h * 0.5);
-    // let pectoralFinEnd = createVector(-w * 0.3, -h * 0.5);
-    // let { finType, ...pectoral } = this.generateFin(
-    //   pectoralFinStart,
-    //   pectoralFinEnd
-    // );
+    console.log(this.finConfig);
   }
 
   generateBody(width, height) {
@@ -115,110 +120,103 @@ class Fish {
     return pts;
   }
 
-  // no clue how the local to world space works but it works https://chatgpt.com/share/6826e1fa-1a34-8007-917b-351c0bbb8124
-  localToWorldSpace(start, end, pts, heightScale = 1) {
-    let dir = p5.Vector.sub(end, start);
-    let length = dir.mag();
-    let angle = dir.heading();
-    for (let v of Object.values(pts)) {
-      v = v.mult(length, length * heightScale);
-      v = v.rotate(angle).add(start);
-    }
-    return pts;
-  }
-
-  generateArc() {
+  finArc() {
     // calculates the local points
-    // local space
-    let pts = {
-      p0: createVector(random(-0.3, 0.3), random(0.5, 1)),
-      p1: createVector(random(0.7, 1.3), random(0.5, 1)),
-      b0: createVector(0.5, -1),
+    let localpts = {
+      p0: createVector(-1, 1),
+      p1: createVector(1, 1),
+      b0: createVector(0, -1),
     };
 
-    return pts;
+    return localpts;
   }
 
-  generateTriangle() {
+  finTriangle() {
     // generates a fin shape using 3 points and 1 control point
-
-    let pts = {
-      p0: createVector(0, random(0, 0.2)),
-      p1: createVector(0.5, 0),
-      p2: createVector(1, random(0.8, 1)),
-      b0: createVector(random(0.3, 0.7), random(0.2, 1.5)),
+    let localpts = {
+      p0: createVector(-1, 1),
+      p1: createVector(0, 0),
+      p2: createVector(1, 1),
+      b0: createVector(0, 0.5),
     };
-    return pts;
+    // let pts = {
+    //   p0: createVector(0, random(0, 0.2)),
+    //   p1: createVector(0.5, 0),
+    //   p2: createVector(1, random(0.8, 1)),
+    //   b0: createVector(random(0.3, 0.7), random(0.2, 1.5)),
+    // };
+    return localpts;
   }
 
-  generateTrapezoid() {
+  finTrapezoid() {
     // genereates a trapezoid fin shape using 4 points and 1 control point
-    let pts = {
-      p0: createVector(0.25, 0),
-      p1: createVector(0, random(0.5, 1)),
-      p2: createVector(1, random(0.5, 1)),
-      p3: createVector(0.75, 0),
-      b0: createVector(random(0.3, 0.7), random(0.5, 1.5)),
+    let localpts = {
+      p0: createVector(-0.5, 0),
+      p1: createVector(-1, 1),
+      p2: createVector(1, 1),
+      p3: createVector(0.5, 0),
+      b0: createVector(0, 0.5),
     };
-    return pts;
+    // let pts = {
+    //   p0: createVector(0.25, 0),
+    //   p1: createVector(0, random(0.5, 1)),
+    //   p2: createVector(1, random(0.5, 1)),
+    //   p3: createVector(0.75, 0),
+    //   b0: createVector(random(0.3, 0.7), random(0.5, 1.5)),
+    // };
+    return localpts;
   }
 
-  generateFin() {
-    // determines the fin shape given the start and end points (box's corners)
+  generateFin(width, height, rotation, midpoint) {
     // generates random fin shapes for each fin
     let finType = "arc";
     let finShape = random(1);
     let finPoints = {};
     if (finShape < 0.3) {
       finType = "trapezoid";
-      finPoints = this.generateTrapezoid();
+      finPoints = this.finTrapezoid();
     } else if (finShape < 0.6) {
       finType = "triangle";
-      finPoints = this.generateTriangle();
+      finPoints = this.finTriangle();
     } else {
       finType = "arc";
-      finPoints = this.generateArc();
+      finPoints = this.finArc();
     }
+
+    // transforms points to world coordinates
+    for (let [k, v] of Object.entries(finPoints)) {
+      // scale the points to the width and height of the fish
+      v.x *= width;
+      v.y *= height;
+      v.rotate(rotation);
+      v.add(midpoint);
+    }
+
     let fin = { finType, ...finPoints };
-    console.log(fin);
     return fin;
   }
 
   draw(midpoint) {
-    let pts = this.calculatePoints(this.bodyPoints, midpoint);
+    push();
+    translate(midpoint.x, midpoint.y);
 
-    // let finpts = this.calculatePoints(this.fins, midpoint);
-    for (let fin of Object.values(this.fins)) {
-      let finpts = this.calculatePoints(fin.points, midpoint);
-      this.drawFin(fin.type, finpts);
+    for (let fin of Object.values(this.finConfig)) {
+      this.drawFin(fin.type, fin.points);
+      this.drawPoints(fin.points);
     }
+    this.drawBody(this.bodyPoints);
+    this.drawEye(this.bodyPoints);
+    this.drawFin(this.finConfig.pectoral.type, this.finConfig.pectoral.points);
 
-    this.drawBody(pts);
-    this.drawEye(pts);
-    let pectpts = this.calculatePoints(this.fins.pectoral.points, midpoint);
-    this.drawFin(this.fins.pectoral.type, pectpts);
-
-    // this.drawPoints(finpts);
-  }
-
-  calculatePoints(obj, midPoint) {
-    let addMidPoint = (point) => {
-      return createVector(midPoint.x + point.x, midPoint.y + point.y);
-    };
-    let pts = {};
-    for (let [k, v] of Object.entries(obj)) {
-      pts[k] = addMidPoint(obj[k]);
-    }
-    // calculate the points of the fish body in the canvas
-    return pts;
+    pop();
   }
 
   drawFin(finType, pts) {
     // draws the fins
-    if (finType == "arc") this.drawArcFin(pts);
-    else if (finType == "triangle") this.drawTriangleFin(pts);
-    else if (finType == "trapezoid") this.drawTrapezoidFin(pts);
-    // else console.log("fin type not found");
+    if (finType == "arc") this.drawArc(pts);
+    else if (finType == "triangle") this.drawTriangle(pts);
+    else if (finType == "trapezoid") this.drawTrapezoid(pts);
+    else console.log("fin type not found");
   }
 
   drawPoints(pts) {
@@ -232,7 +230,7 @@ class Fish {
     strokeWeight(1);
   }
 
-  drawArcFin(pts) {
+  drawArc(pts) {
     // draws using 2 points and 1 control point
     fill(255, 100, 100);
     beginShape();
@@ -242,7 +240,7 @@ class Fish {
     endShape(CLOSE);
   }
 
-  drawTriangleFin(pts) {
+  drawTriangle(pts) {
     // draws using 3 points and 1 control point
     fill(255, 100, 100);
     beginShape();
@@ -253,7 +251,7 @@ class Fish {
     endShape(CLOSE);
   }
 
-  drawTrapezoidFin(pts) {
+  drawTrapezoid(pts) {
     // draws using 4 point and 1 control point
     fill(255, 100, 100);
     beginShape();
