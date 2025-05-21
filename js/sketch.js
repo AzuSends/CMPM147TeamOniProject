@@ -4,8 +4,25 @@ let bezx = []
 let bezy = []
 let castProgress = 0;
 
+//vars from corvuscorae reflected clouds project
+const w = 1200;
+const h = 600;
+
+let skySeed = 0;
+
+let amplitude = 20;
+let freq = 0.05;
+
+//player vars
+let player;
+let speed = 5;
+let posX = w - 320;
+
+let movingLeft = false;
+let movingRight = false;
+
 function setup() {
-    createCanvas(1200, 600)
+    createCanvas(w, h)
     background(173, 216, 230)
     createSceneObjectsTemp()
 
@@ -14,6 +31,19 @@ function setup() {
         console.log("Issues defining fishing arc, expect undefined behavior")
     }
 
+    createButton("reimagine").mousePressed(() => regenerate());
+    regenerate();
+
+}
+
+function preload() {
+    dockEnd = loadImage('../assets/dockEnd_x5.png');
+    dockMid = loadImage('../assets/dockMid_x5.png');
+    dockMidLeg = loadImage('../assets/dockMidLeg_x5.png');
+    dockLeg = loadImage('../assets/dockLeg_x5.png');
+
+    //player img
+    player = loadImage('../assets/fish_x5.png');
 }
 
 function draw() {
@@ -23,7 +53,35 @@ function draw() {
         doCastAnimation()
     }
 
+    perlinSky();
+    /*dock.resize(240, 160);
+    image(dock, 0, h / 3 + 10);*/
+    //place dock tiles
+    scale(-1, 1);
+    image(dockMidLeg, -w, h - 240);
+    image(dockMid, -w + 80, h - 240);
+    image(dockMid, -w + 160, h - 240);
+    image(dockMidLeg, -w + 240, h - 240);
+    image(dockMid, -w + 320, h - 240);
+    image(dockMid, -w + 400, h - 240);
+    image(dockEnd, -w + 480, h - 240);
 
+    image(dockLeg, -w, h - 160);
+    image(dockLeg, -w + 240, h - 160);
+    image(dockLeg, -w + 480, h - 160);
+
+    //place player sprite
+    image(player, -posX, h - 350);
+
+    //move player
+    if (movingLeft) {
+        posX -= speed;
+    }
+
+    // Move right
+    if (movingRight) {
+        posX += speed;
+    }
 }
 
 function createSceneObjectsTemp() { //Just some basic visuals for the time being
@@ -40,6 +98,26 @@ function createSceneObjectsTemp() { //Just some basic visuals for the time being
 function mouseClicked() {
     castProgress = 0;
 }
+
+//movement
+function keyPressed() {
+    if (key === 'a' || key === 'A') {
+        movingLeft = true;
+    }
+    if (key === 'd' || key === 'D') {
+        movingRight = true;
+    }
+}
+
+function keyReleased() {
+    if (key === 'a' || key === 'A') {
+        movingLeft = false;
+    }
+    if (key === 'd' || key === 'D') {
+        movingRight = false;
+    }
+}
+
 function genBezierPoints() {
     noFill()
     strokeWeight(1);
@@ -69,4 +147,35 @@ function doCastAnimation() {
         vertex(bezx[i], bezy[i]);
     }
     endShape();
+}
+
+//perlinSky() and regenerate() functions from corvuscorae reflected clouds project
+function perlinSky() {
+    let level = 450;
+    let scale = 0.09;
+    noiseSeed(skySeed);
+    strokeWeight(2)
+    let drift = amplitude * sin(frameCount * freq);
+    for (let y = 0; y < h / 2; y += 2) {  // shifted up to reflect at horizon
+        // modify scale along y-axis, squishing it as y gets larger
+        let mod = map(y, 0, h / 2, 10, 1);
+        let squish = scale / mod;
+        let ny = squish * y + skySeed * 0.5;
+        for (let x = 0; x < w; x += 2) {
+
+            let nx = squish * (x + drift) + skySeed;
+
+            let c = level * noise(nx, ny);
+
+            let strokeColor = color(100, 149, 237);
+            if (c > 200) { strokeColor = "skyblue"; }
+            stroke(strokeColor);
+            point(x, h - y - 1);
+        }
+    }
+}
+
+function regenerate() {
+    // random seeds
+    skySeed = random(0, 2556);
 }
