@@ -20,6 +20,12 @@ let posX = w - 320;
 
 let movingLeft = false;
 let movingRight = false;
+//Mountain vars
+const MountainColor = "#B29995";
+const MountainColor1 = "#B9A19F";
+const MountainColor2 = "#BEA19B";
+const MountainColor3 = "#C4A9A2";
+const MountainColor4 = "#98888B";
 
 function setup() {
     createCanvas(w, h)
@@ -30,6 +36,7 @@ function setup() {
     if (bezx.length != bezy.length) {
         console.log("Issues defining fishing arc, expect undefined behavior")
     }
+    
 
     createButton("reimagine").mousePressed(() => regenerate());
     regenerate();
@@ -47,7 +54,16 @@ function preload() {
 }
 
 function draw() {
+    randomSeed(skySeed);
+
     background(173, 216, 230)
+    //------Call the mountain drawing---------
+    drawMountain(MountainColor4, 90);
+    drawMountain(MountainColor, 50);
+    drawMountain(MountainColor1, 60);
+    drawMountain(MountainColor2, 70);
+    drawMountain(MountainColor3, 80);
+    //----
     createSceneObjectsTemp()
     if (castProgress <= bezx.length) {
         doCastAnimation()
@@ -72,7 +88,6 @@ function draw() {
 
     //place player sprite
     image(player, -posX, h - 350);
-
     //move player
     if (movingLeft) {
         posX -= speed;
@@ -174,6 +189,22 @@ function perlinSky() {
         }
     }
 }
+//--------------------Draw mountain func----
+function drawMountain(color, heightM){
+  fill(color);
+  beginShape();
+  vertex(0, height / 2);
+  const steps =10;
+  for (let i = 0; i < steps + 1; i++) {
+    let x = (width * i) / steps;
+    let y =
+      height / 2 - (random() * random() * random() * height) / 2 - height / heightM;
+    vertex(x, y);
+  }
+  vertex(width, height / 2);
+  endShape(CLOSE);
+}
+//----------------------------------
 
 function regenerate() {
     // random seeds
