@@ -39,50 +39,68 @@ function draw() {
 
 // class too big might need to split into generation of fish and drawing of fish
 class Fish {
-  constructor() {
+  constructor(seed) {
+    // can just store seed to save fish to local storage
+    if (seed) randomSeed(seed);
+
+    this.width = random(fishParams.minWidth, fishParams.maxWidth);
+    this.height = random(fishParams.minHeight, fishParams.maxHeight);
+
+    let w = this.width / 2;
+    let h = this.height / 2;
+
     this.body = {
-      width: random(fishParams.minWidth, fishParams.maxWidth),
-      height: random(fishParams.minHeight, fishParams.maxHeight),
+      points: {
+        mouthtop: createVector(-w, -random(0, h / 2)),
+        mouthbot: createVector(-w, random(0, h / 2)),
+        mouthmid: createVector(
+          -random(w / 2.4, w * 1.2),
+          random(-h / 2.5, h / 2.5)
+        ),
+        tail: createVector(w, 0),
+
+        // cubic bezier control points
+        b0a: createVector(random(-w, 0), -h),
+        b0b: createVector(random(0, w), -h / 2),
+
+        b1a: createVector(random(0, w), h / 2),
+        b1b: createVector(random(-w, 0), h),
+
+        eye: createVector(-w * random(0.4, 0.6), random(-h / 4, -h / 8)),
+      },
       color: color(random(255), 100, 100),
     };
 
-    let w = this.body.width / 2;
-    let h = this.body.height / 2;
-
-    this.bodyPoints = this.generateBody(this.body.width, this.body.height);
-
     // defines area of possible fin positions
-    this.finConfig = {
+    this.fins = {
       pectoral: {
-        start: createVector(-w * 0.3, h * 0.5),
-        end: createVector(-w * 0.3, -h * 0.5),
         midpoint: createVector(-w * 0.3, 0),
-        width: w * 0.25,
-        height: h,
-        rotation: -PI / 2,
+        width: randomGaussian(h * 0.5, h * 0.1),
+        height: randomGaussian(h, h * 0.2),
+        rotation: randomGaussian(-PI / 2, PI / 12),
       },
       pelvic: {
-        midpoint: createVector(-w * 0.2, this.bodyPoints.mouthbot.y),
-        width: w * 0.5,
-        height: h * 0.8,
-        rotation: 0,
+        midpoint: createVector(-w * 0.2, this.body.points.mouthbot.y),
+        width: random(w * 0.5, w * 0.1),
+        height: randomGaussian(h * 0.8, h * 0.2),
+        rotation: -PI / 20,
       },
       tail: {
-        midpoint: this.bodyPoints.tail,
-        width: w / 4,
-        height: h,
+        midpoint: createVector(w * 0.8, 0),
+        width: randomGaussian(h * 0.6, h * 0.1),
+        height: randomGaussian(h * 1.2, h * 0.2),
         rotation: -PI / 2,
       },
       dorsal: {
-        midpoint: createVector(-w * 0.2, this.bodyPoints.mouthtop.y),
-        width: w / 2,
-        height: h,
-        rotation: PI,
+        midpoint: createVector(-w * 0.2, this.body.points.mouthtop.y),
+        width: random(w * 0.9, w * 0.3),
+        height: randomGaussian(h, h * 0.25),
+        rotation: randomGaussian(PI + PI / 12, PI / 24),
       },
     };
 
-    // generate the fins based on the finConfig
-    for (let fin of Object.values(this.finConfig)) {
+    // generate the fins based on the fin's parameters
+    for (let fin of Object.values(this.fins)) {
       let { finType, ...finPoints } = this.generateFin(
         fin.width,
         fin.height,
@@ -93,31 +111,7 @@ class Fish {
       fin.points = finPoints;
       fin.type = finType;
     }
-    console.log(this.finConfig);
-  }
-
-  generateBody(width, height) {
-    let w = width / 2;
-    let h = height / 2;
-    let pts = {
-      mouthtop: createVector(-w, -random(0, h / 2)),
-      mouthbot: createVector(-w, random(0, h / 2)),
-      mouthmid: createVector(
-        -random(w / 2.4, w * 1.2),
-        random(-h / 2.5, h / 2.5)
-      ),
-      tail: createVector(w, 0),
-
-      // cubic bezier control points
-      b0a: createVector(random(-w, 0), -h),
-      b0b: createVector(random(0, w), -h / 2),
-
-      b1a: createVector(random(0, w), h / 2),
-      b1b: createVector(random(-w, 0), h),
-
-      eye: createVector(-w * random(0.4, 0.6), random(-h / 4, -h / 8)),
-    };
-    return pts;
+    console.log(this.fins);
   }
 
   finArc() {
@@ -200,13 +194,13 @@ class Fish {
     push();
     translate(midpoint.x, midpoint.y);
 
-    for (let fin of Object.values(this.finConfig)) {
+    for (let fin of Object.values(this.fins)) {
       this.drawFin(fin.type, fin.points);
-      this.drawPoints(fin.points);
+      // this.drawPoints(fin.points);
     }
-    this.drawBody(this.bodyPoints);
-    this.drawEye(this.bodyPoints);
-    this.drawFin(this.finConfig.pectoral.type, this.finConfig.pectoral.points);
+    this.drawBody(this.body.points);
+    this.drawEye(this.body.points.eye);
+    this.drawFin(this.fins.pectoral.type, this.fins.pectoral.points);
 
     pop();
   }
@@ -236,7 +230,6 @@ class Fish {
     beginShape();
     vertex(pts.p0.x, pts.p0.y);
     quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
-    // quadraticVertex(pts.b1.x, pts.b1.y, pts.p0.x, pts.p0.y);
     endShape(CLOSE);
   }
 
@@ -290,7 +283,6 @@ class Fish {
       pts.mouthbot.y
     );
 
-    // vertex(pts.mouthbot.x, pts.mouthbot.y);
     bezierVertex(
       pts.mouthmid.x,
       pts.mouthmid.y,
@@ -303,12 +295,12 @@ class Fish {
     endShape();
   }
 
-  drawEye(pts) {
+  drawEye(pt) {
     stroke(this.body.color);
     strokeWeight(1);
     fill("white");
-    ellipse(pts.eye.x, pts.eye.y, this.body.height / 7);
+    ellipse(pt.x, pt.y, this.height / 7);
     fill("black");
-    ellipse(pts.eye.x, pts.eye.y, this.body.height / 12);
+    ellipse(pt.x, pt.y, this.height / 12);
   }
 }
