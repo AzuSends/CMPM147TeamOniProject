@@ -44,10 +44,10 @@ function setup() {
 }
 
 function preload() {
-    dockEnd = loadImage('../assets/dockEnd_x5.png');
-    dockMid = loadImage('../assets/dockMid_x5.png');
-    dockMidLeg = loadImage('../assets/dockMidLeg_x5.png');
-    dockLeg = loadImage('../assets/dockLeg_x5.png');
+    dockEnd = loadImage('/assets/dockEnd_x5.png');
+    dockMid = loadImage('/assets/dockMid_x5.png');
+    dockMidLeg = loadImage('/assets/dockMidLeg_x5.png');
+    dockLeg = loadImage('/assets/dockLeg_x5.png');
 
     //player img
     player = loadImage('../assets/fish_x5.png');
