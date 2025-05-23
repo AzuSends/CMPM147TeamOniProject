@@ -1,41 +1,4 @@
-/* exported setup, draw */
-
-let canvas = {
-  width: 800,
-  height: 400,
-  midPoint: {
-    x: 400,
-    y: 200,
-  },
-};
-let fishes = [];
-let fishParams;
-
-function setup() {
-  createCanvas(canvas.width, canvas.height);
-  colorMode(HSB);
-  fishParams = {
-    maxWidth: canvas.width / 1.5,
-    minWidth: canvas.width / 6,
-    maxHeight: canvas.height / 1.5,
-    minHeight: canvas.height / 6,
-  };
-
-  let fish = new Fish();
-  fishes.push(fish);
-}
-
-function draw() {
-  // move the fish along the x-axis
-  background(0, 0, 0);
-  for (let fish of fishes) {
-    fish.draw(canvas.midPoint);
-  }
-  canvas.midPoint.x -= 1;
-  if (canvas.midPoint.x < 0) {
-    canvas.midPoint.x = canvas.width;
-  }
-}
+/* exported Fish, ColorSchemes */
 
 // inspired by https://editor.p5js.org/simontiger/sketches/MVVT1T01n
 const ColorSchemes = {
@@ -91,6 +54,10 @@ const ColorSchemes = {
       ),
     ];
   },
+  getShadow(baseColor, amount = 0.5) {
+    let b = brightness(baseColor) * amount;
+    return color(hue(baseColor), saturation(baseColor), b);
+  },
 };
 
 class Fish {
@@ -106,6 +73,7 @@ class Fish {
 
     this.mainColor = color(random(255), 100, 100);
     this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
+    this.strokeColor = ColorSchemes.getShadow(this.mainColor);
 
     this.body = {
       points: {
@@ -168,7 +136,6 @@ class Fish {
       fin.points = finPoints;
       fin.type = finType;
     }
-    console.log(this.fins);
   }
 
   finArc() {
@@ -244,10 +211,13 @@ class Fish {
     return fin;
   }
 
-  draw(midpoint) {
+  draw(midpoint, scaleRatio = 1) {
+    colorMode(HSB);
     push();
     translate(midpoint.x, midpoint.y);
-
+    scale(scaleRatio);
+    stroke(this.strokeColor);
+    strokeWeight(2);
     for (let fin of Object.values(this.fins)) {
       this.drawFin(fin.type, fin.points);
       // this.drawPoints(fin.points);
@@ -268,14 +238,12 @@ class Fish {
   }
 
   drawPoints(pts) {
-    stroke(255, 100, 100);
+    // stroke(255, 100, 100);
     fill(100, 100, 100);
-    strokeWeight(2);
     for (let [k, v] of Object.entries(pts)) {
       point(v.x, v.y);
       text(k, v.x + 5, v.y - 5);
     }
-    strokeWeight(1);
   }
 
   drawArc(pts) {
@@ -311,8 +279,6 @@ class Fish {
 
   // draws fish body
   drawBody(pts) {
-    // strokeWeight(1);
-    noStroke();
     fill(this.mainColor);
     beginShape();
     // body
@@ -350,7 +316,6 @@ class Fish {
   }
 
   drawEye(pt) {
-    strokeWeight(1);
     fill("white");
     ellipse(pt.x, pt.y, this.height / 7);
     fill("black");
