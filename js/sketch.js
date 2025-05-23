@@ -37,17 +37,75 @@ function draw() {
   }
 }
 
-// class too big might need to split into generation of fish and drawing of fish
+// inspired by https://editor.p5js.org/simontiger/sketches/MVVT1T01n
+const ColorSchemes = {
+  getComplementary(baseColor) {
+    return color(
+      (hue(baseColor) + 180) % 360,
+      saturation(baseColor),
+      brightness(baseColor)
+    );
+  },
+  getAnalogous(baseColor) {
+    return [
+      color(
+        (hue(baseColor) + 330) % 360,
+        saturation(baseColor),
+        brightness(baseColor)
+      ), // -30 deg
+      baseColor,
+      color(
+        (hue(baseColor) + 30) % 360,
+        saturation(baseColor),
+        brightness(baseColor)
+      ), // +30 deg
+    ];
+  },
+  getSplitComplementary(baseColor) {
+    return [
+      baseColor,
+      color(
+        (hue(baseColor) + 150) % 360,
+        saturation(baseColor),
+        brightness(baseColor)
+      ),
+      color(
+        (hue(baseColor) + 210) % 360,
+        saturation(baseColor),
+        brightness(baseColor)
+      ),
+    ];
+  },
+  getTriadic(baseColor) {
+    return [
+      baseColor,
+      color(
+        (hue(baseColor) + 120) % 360,
+        saturation(baseColor),
+        brightness(baseColor)
+      ),
+      color(
+        (hue(baseColor) + 240) % 360,
+        saturation(baseColor),
+        brightness(baseColor)
+      ),
+    ];
+  },
+};
+
 class Fish {
   constructor(seed) {
-    // can just store seed to save fish to local storage
     if (seed) randomSeed(seed);
+    this.seed = seed;
 
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
 
     let w = this.width / 2;
     let h = this.height / 2;
+
+    this.mainColor = color(random(255), 100, 100);
+    this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
 
     this.body = {
       points: {
@@ -68,7 +126,6 @@ class Fish {
 
         eye: createVector(-w * random(0.4, 0.6), random(-h / 4, -h / 8)),
       },
-      color: color(random(255), 100, 100),
     };
 
     // defines area of possible fin positions
@@ -81,13 +138,13 @@ class Fish {
       },
       pelvic: {
         midpoint: createVector(-w * 0.2, this.body.points.mouthbot.y),
-        width: random(w * 0.5, w * 0.1),
-        height: randomGaussian(h * 0.8, h * 0.2),
+        width: random(w * 0.6, w * 0.15),
+        height: randomGaussian(h * 0.85, h * 0.1),
         rotation: -PI / 20,
       },
       tail: {
         midpoint: createVector(w * 0.8, 0),
-        width: randomGaussian(h * 0.6, h * 0.1),
+        width: randomGaussian(h * 0.6, h * 0.2),
         height: randomGaussian(h * 1.2, h * 0.2),
         rotation: -PI / 2,
       },
@@ -95,7 +152,7 @@ class Fish {
         midpoint: createVector(-w * 0.2, this.body.points.mouthtop.y),
         width: random(w * 0.9, w * 0.3),
         height: randomGaussian(h, h * 0.25),
-        rotation: randomGaussian(PI + PI / 12, PI / 24),
+        rotation: randomGaussian(PI, PI / 24),
       },
     };
 
@@ -115,10 +172,12 @@ class Fish {
   }
 
   finArc() {
+    let leftY = random(0.3, 1);
+    let rightY = random(0.3, 1);
     // calculates the local points
     let localpts = {
-      p0: createVector(-1, 1),
-      p1: createVector(1, 1),
+      p0: createVector(-1, leftY),
+      p1: createVector(1, rightY),
       b0: createVector(0, -1),
     };
 
@@ -126,38 +185,33 @@ class Fish {
   }
 
   finTriangle() {
+    let curveTilt = random(-0.3, 0.3);
+    let curveHeight = random(0.2, 2); // controls curve
+    let leftY = random(0.2, 1);
+    let rightY = random(0.2, 1);
     // generates a fin shape using 3 points and 1 control point
     let localpts = {
-      p0: createVector(-1, 1),
+      p0: createVector(-1, leftY),
       p1: createVector(0, 0),
-      p2: createVector(1, 1),
-      b0: createVector(0, 0.5),
+      p2: createVector(1, rightY),
+      b0: createVector(curveTilt, curveHeight),
     };
-    // let pts = {
-    //   p0: createVector(0, random(0, 0.2)),
-    //   p1: createVector(0.5, 0),
-    //   p2: createVector(1, random(0.8, 1)),
-    //   b0: createVector(random(0.3, 0.7), random(0.2, 1.5)),
-    // };
     return localpts;
   }
 
   finTrapezoid() {
+    let curveHeight = random(0.5, 1.5);
+    let curveTilt = random(-0.3, 0.3);
+    let leftY = random(0.5, 1);
+    let rightY = random(0.5, 1);
     // genereates a trapezoid fin shape using 4 points and 1 control point
     let localpts = {
       p0: createVector(-0.5, 0),
-      p1: createVector(-1, 1),
-      p2: createVector(1, 1),
+      p1: createVector(-1, leftY),
+      p2: createVector(1, rightY),
       p3: createVector(0.5, 0),
-      b0: createVector(0, 0.5),
+      b0: createVector(curveTilt, curveHeight),
     };
-    // let pts = {
-    //   p0: createVector(0.25, 0),
-    //   p1: createVector(0, random(0.5, 1)),
-    //   p2: createVector(1, random(0.5, 1)),
-    //   p3: createVector(0.75, 0),
-    //   b0: createVector(random(0.3, 0.7), random(0.5, 1.5)),
-    // };
     return localpts;
   }
 
@@ -226,7 +280,7 @@ class Fish {
 
   drawArc(pts) {
     // draws using 2 points and 1 control point
-    fill(255, 100, 100);
+    fill(this.secondaryColor);
     beginShape();
     vertex(pts.p0.x, pts.p0.y);
     quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
@@ -235,7 +289,7 @@ class Fish {
 
   drawTriangle(pts) {
     // draws using 3 points and 1 control point
-    fill(255, 100, 100);
+    fill(this.secondaryColor);
     beginShape();
     vertex(pts.p0.x, pts.p0.y);
     vertex(pts.p1.x, pts.p1.y);
@@ -246,7 +300,7 @@ class Fish {
 
   drawTrapezoid(pts) {
     // draws using 4 point and 1 control point
-    fill(255, 100, 100);
+    fill(this.secondaryColor);
     beginShape();
     vertex(pts.p0.x, pts.p0.y);
     vertex(pts.p1.x, pts.p1.y);
@@ -259,7 +313,7 @@ class Fish {
   drawBody(pts) {
     // strokeWeight(1);
     noStroke();
-    fill(this.body.color);
+    fill(this.mainColor);
     beginShape();
     // body
     vertex(pts.mouthtop.x, pts.mouthtop.y);
@@ -296,7 +350,6 @@ class Fish {
   }
 
   drawEye(pt) {
-    stroke(this.body.color);
     strokeWeight(1);
     fill("white");
     ellipse(pt.x, pt.y, this.height / 7);
