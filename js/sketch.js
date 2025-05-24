@@ -36,8 +36,13 @@ const MountainStroke = "#5C4033";
 const BackgroundColor = "#b0d5e6";
 const SeaColor = "#6495ed";
 
+//cloud vars
+let cloudGraphic;
+let cloudOffsetX = 0;
+
 function setup() {
   createCanvas(w, h);
+  cloudGraphic = createGraphics(w, h);
 
   colorMode(HSB);
   background(BackgroundColor);
@@ -104,6 +109,7 @@ function draw() {
   drawAllFish();
 
   perlinSky();
+  cloudAnim();
   /*dock.resize(240, 160);
       image(dock, 0, h / 3 + 10);*/
   //place dock tiles
@@ -246,6 +252,37 @@ function drawMountain(color, heightM) {
   endShape(CLOSE);
 }
 //----------------------------------
+
+//draw clouds func
+function cloudAnim() {
+    cloudOffsetX += 0.2; // Speed of cloud drift
+
+    cloudGraphic.clear(); // Clear the buffer
+    cloudGraphic.noStroke();
+    cloudGraphic.fill(255, 255, 255, 50); // soft white
+
+    // Layered cloud passes
+    const layers = [
+        { scale: 0.004, alpha: 20, offsetMult: 0.5, size: 25 },
+        { scale: 0.006, alpha: 50, offsetMult: 1.5, size: 18 }
+    ];
+
+    for (let layer of layers) {
+        for (let y = 0; y < height/2; y += 10) {
+            for (let x = 0; x < width; x += 10) {
+                let n = noise(
+                (x + cloudOffsetX * layer.offsetMult) * layer.scale,
+                y * layer.scale
+                );
+                if (n > 0.5) {
+                    cloudGraphic.fill(255, 255, 255, layer.alpha);
+                    cloudGraphic.ellipse(x, y, layer.size, layer.size * 0.75);
+                }
+            }
+        }
+    }
+    image(cloudGraphic, 0, 0);
+}
 
 function regenerate() {
   // random seeds
