@@ -1,5 +1,70 @@
 /* exported setup, draw */
 
+//Background Class
+class Background {
+    constructor() {
+        this.skySeed = random(0, 2556);
+    }
+
+    draw() {
+        randomSeed(this.skySeed);
+        background(BackgroundColor);
+
+        this.drawMountains();
+        this.drawSceneObjects();
+        this.perlinSky();
+    }
+
+    drawMountains() {
+        drawMountain(MountainColor4, 90);
+        drawMountain(MountainColor, 50);
+        drawMountain(MountainColor1, 60);
+        drawMountain(MountainColor2, 70);
+        drawMountain(MountainColor3, 80);
+    }
+
+    drawSceneObjects() {
+        fill("blue");
+        noStroke();
+        rect(0, height * 0.75, width, height * 0.25);
+        fill("brown");
+        rect(width * 0.5625, height * 0.625, width * 0.4375, height * 0.0375);
+        rect(width * 0.625, height * 0.625, width * 0.01875, height * 0.125);
+        fill("orange");
+        rect(width * 0.675, height * 0.5, width * 0.025, height * 0.125);
+    }
+
+    perlinSky() {
+        let level = 450;
+        let scale = 0.09;
+        noiseSeed(this.skySeed);
+        strokeWeight(2);
+        let drift = amplitude * sin(frameCount * freq);
+        for (let y = 0; y < h / 2; y += 2) {
+        let mod = map(y, 0, h / 2, 10, 1);
+        let squish = scale / mod;
+        let ny = squish * y + this.skySeed * 0.5;
+        for (let x = 0; x < w; x += 2) {
+            let nx = squish * (x + drift) + this.skySeed;
+            let c = level * noise(nx, ny);
+
+            let strokeColor = color(SeaColor);
+            if (c > 200) {
+            strokeColor = "skyblue";
+            }
+            stroke(strokeColor);
+            point(x, h - y - 1);
+        }
+        }
+    }
+
+    regenerate() {
+        this.skySeed = random(0, 2556);
+    }
+}
+
+let backgroundScene;
+
 let bezx = [];
 let bezy = [];
 let castProgress = 0;
@@ -38,6 +103,7 @@ const SeaColor = "#6495ed";
 
 function setup() {
   createCanvas(w, h);
+  backgroundScene = new Background();
 
   colorMode(HSB);
   background(BackgroundColor);
@@ -86,24 +152,7 @@ function preload() {
 }
 
 function draw() {
-  randomSeed(skySeed);
-
-  background(BackgroundColor);
-  //------Call the mountain drawing---------
-  drawMountain(MountainColor4, 90);
-  drawMountain(MountainColor, 50);
-  drawMountain(MountainColor1, 60);
-  drawMountain(MountainColor2, 70);
-  drawMountain(MountainColor3, 80);
-  //----
-  createSceneObjectsTemp();
-  if (castProgress <= bezx.length) {
-    doCastAnimation();
-  }
-
-  drawAllFish();
-
-  perlinSky();
+  backgroundScene.draw();
   /*dock.resize(240, 160);
       image(dock, 0, h / 3 + 10);*/
   //place dock tiles
@@ -133,7 +182,7 @@ function draw() {
   }
 }
 
-function createSceneObjectsTemp() {
+/*function createSceneObjectsTemp() {
   //Just some basic visuals for the time being
   fill("blue");
   noStroke();
@@ -143,7 +192,7 @@ function createSceneObjectsTemp() {
   rect(width * 0.625, height * 0.625, width * 0.01875, height * 0.125);
   fill("orange");
   rect(width * 0.675, height * 0.5, width * 0.025, height * 0.125);
-}
+}*/
 
 function mouseClicked() {
   castProgress = 0;
@@ -200,33 +249,6 @@ function doCastAnimation() {
   endShape();
 }
 
-//perlinSky() and regenerate() functions from corvuscorae reflected clouds project
-function perlinSky() {
-  let level = 450;
-  let scale = 0.09;
-  noiseSeed(skySeed);
-  strokeWeight(2);
-  let drift = amplitude * sin(frameCount * freq);
-  for (let y = 0; y < h / 2; y += 2) {
-    // shifted up to reflect at horizon
-    // modify scale along y-axis, squishing it as y gets larger
-    let mod = map(y, 0, h / 2, 10, 1);
-    let squish = scale / mod;
-    let ny = squish * y + skySeed * 0.5;
-    for (let x = 0; x < w; x += 2) {
-      let nx = squish * (x + drift) + skySeed;
-
-      let c = level * noise(nx, ny);
-
-      let strokeColor = color(SeaColor);
-      if (c > 200) {
-        strokeColor = "skyblue";
-      }
-      stroke(strokeColor);
-      point(x, h - y - 1);
-    }
-  }
-}
 //--------------------Draw mountain func----
 function drawMountain(color, heightM) {
   fill(color);
@@ -249,5 +271,6 @@ function drawMountain(color, heightM) {
 
 function regenerate() {
   // random seeds
-  skySeed = random(0, 2556);
+  backgroundScene.regenerate();
+
 }
