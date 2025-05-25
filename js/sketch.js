@@ -1,82 +1,121 @@
 /* exported setup, draw */
 
 //Background Class
-class Background {
-    constructor() {
-        this.skySeed = random(0, 2556);
+class BackgroundScene {
+  constructor() {
+    this.skySeed = 0;
+    this.amplitude = 20;
+    this.freq = 0.05;
+    //Mountain vars
+    this.MountainColor = "#B29995";
+    this.MountainColor1 = "#B9A19F";
+    this.MountainColor2 = "#BEA19B";
+    this.MountainColor3 = "#C4A9A2";
+    this.MountainColor4 = "#98888B";
+    this.MountainStroke = "#5C4033";
+    this.SeaColor = "#6495ed";
+  }
+
+  draw() {
+    this.drawMountains();
+    this.perlinSky();
+    this.dock();
+  }
+
+  drawMountains() {
+    this.drawMountain(this.MountainColor4, 90);
+    this.drawMountain(this.MountainColor, 50);
+    this.drawMountain(this.MountainColor1, 60);
+    this.drawMountain(this.MountainColor2, 70);
+    this.drawMountain(this.MountainColor3, 80);
+  }
+
+  //--------------------Draw mountain func----
+  drawMountain(color, heightM) {
+    push();
+    fill(color);
+    stroke(this.MountainStroke);
+    beginShape();
+    vertex(0, height / 2);
+    const steps = 10;
+    for (let i = 0; i < steps + 1; i++) {
+      let x = (width * i) / steps;
+      let y =
+        height / 2 -
+        (random() * random() * random() * height) / 2 -
+        height / heightM;
+      vertex(x, y);
     }
+    vertex(width, height / 2);
+    endShape(CLOSE);
+    pop();
+  }
 
-    draw() {
-        randomSeed(this.skySeed);
-        background(BackgroundColor);
+  // drawSceneObjects() {
+  //   fill("blue");
+  //   noStroke();
+  //   rect(0, height * 0.75, width, height * 0.25);
+  //   fill("brown");
+  //   rect(width * 0.5625, height * 0.625, width * 0.4375, height * 0.0375);
+  //   rect(width * 0.625, height * 0.625, width * 0.01875, height * 0.125);
+  //   fill("orange");
+  //   rect(width * 0.675, height * 0.5, width * 0.025, height * 0.125);
+  // }
 
-        this.drawMountains();
-        this.drawSceneObjects();
-        this.perlinSky();
-    }
+  perlinSky() {
+    let level = 450;
+    let scale = 0.09;
+    strokeWeight(2);
+    let drift = this.amplitude * sin(frameCount * this.freq);
+    for (let y = 0; y < h / 2; y += 2) {
+      let mod = map(y, 0, h / 2, 10, 1);
+      let squish = scale / mod;
+      let ny = squish * y + this.skySeed * 0.5;
+      for (let x = 0; x < w; x += 2) {
+        let nx = squish * (x + drift) + this.skySeed;
+        let c = level * noise(nx, ny);
 
-    drawMountains() {
-        drawMountain(MountainColor4, 90);
-        drawMountain(MountainColor, 50);
-        drawMountain(MountainColor1, 60);
-        drawMountain(MountainColor2, 70);
-        drawMountain(MountainColor3, 80);
-    }
-
-    drawSceneObjects() {
-        fill("blue");
-        noStroke();
-        rect(0, height * 0.75, width, height * 0.25);
-        fill("brown");
-        rect(width * 0.5625, height * 0.625, width * 0.4375, height * 0.0375);
-        rect(width * 0.625, height * 0.625, width * 0.01875, height * 0.125);
-        fill("orange");
-        rect(width * 0.675, height * 0.5, width * 0.025, height * 0.125);
-    }
-
-    perlinSky() {
-        let level = 450;
-        let scale = 0.09;
-        noiseSeed(this.skySeed);
-        strokeWeight(2);
-        let drift = amplitude * sin(frameCount * freq);
-        for (let y = 0; y < h / 2; y += 2) {
-        let mod = map(y, 0, h / 2, 10, 1);
-        let squish = scale / mod;
-        let ny = squish * y + this.skySeed * 0.5;
-        for (let x = 0; x < w; x += 2) {
-            let nx = squish * (x + drift) + this.skySeed;
-            let c = level * noise(nx, ny);
-
-            let strokeColor = color(SeaColor);
-            if (c > 200) {
-            strokeColor = "skyblue";
-            }
-            stroke(strokeColor);
-            point(x, h - y - 1);
+        let strokeColor = color(this.SeaColor);
+        if (c > 200) {
+          strokeColor = "skyblue";
         }
-        }
+        stroke(strokeColor);
+        point(x, h - y - 1);
+      }
     }
+  }
 
-    regenerate() {
-        this.skySeed = random(0, 2556);
-    }
+  dock() {
+    //place dock tiles
+    push();
+    scale(-1, 1);
+    image(dockMidLeg, -w, h - 240);
+    image(dockMid, -w + 80, h - 240);
+    image(dockMid, -w + 160, h - 240);
+    image(dockMidLeg, -w + 240, h - 240);
+    image(dockMid, -w + 320, h - 240);
+    image(dockMid, -w + 400, h - 240);
+    image(dockEnd, -w + 480, h - 240);
+
+    image(dockLeg, -w, h - 160);
+    image(dockLeg, -w + 240, h - 160);
+    image(dockLeg, -w + 480, h - 160);
+
+    //place player sprite
+    image(player, -posX, h - 350);
+    pop();
+  }
 }
 
 let backgroundScene;
+const BackgroundColor = "#b0d5e6";
 
 let bezx = [];
 let bezy = [];
 let castProgress = 0;
 
-//vars from corvuscorae reflected clouds project
 const w = 1200;
 const h = 600;
-
-let skySeed = 0;
-
-let amplitude = 20;
-let freq = 0.05;
 
 // fish vars
 let fishes = [];
@@ -90,24 +129,15 @@ let posX = w - 320;
 
 let movingLeft = false;
 let movingRight = false;
-//Mountain vars
-const MountainColor = "#B29995";
-const MountainColor1 = "#B9A19F";
-const MountainColor2 = "#BEA19B";
-const MountainColor3 = "#C4A9A2";
-const MountainColor4 = "#98888B";
-const MountainStroke = "#5C4033";
-
-const BackgroundColor = "#b0d5e6";
-const SeaColor = "#6495ed";
 
 function setup() {
   createCanvas(w, h);
-  backgroundScene = new Background();
+  backgroundScene = new BackgroundScene();
+  randomSeed(0);
+  noiseSeed(0);
 
   colorMode(HSB);
-  background(BackgroundColor);
-  //   createSceneObjectsTemp();
+
   fishParams = {
     maxWidth: w / 1.5,
     minWidth: w / 6,
@@ -115,29 +145,29 @@ function setup() {
     minHeight: h / 6,
   };
   makeFish();
+  makeFish();
 
   genBezierPoints();
   if (bezx.length != bezy.length) {
     console.log("Issues defining fishing arc, expect undefined behavior");
   }
-
-  createButton("reimagine").mousePressed(() => regenerate());
-  regenerate();
 }
 
 function makeFish() {
   let seed = random(0, 10000);
+  console.log(seed);
   let fish = new Fish(seed);
-  fishes.push(fish);
+  let midpoint = { x: random(0, w), y: random(0, h) };
+  fishes.push({ fish, midpoint });
   fishSeeds.push(fish.seed);
   console.log(fish);
   return fish;
 }
 
 function drawAllFish() {
-  for (let fish of fishes) {
-    let midpoint = { x: random(0, w), y: random(0, h) };
-    fish.draw(midpoint, 0.5);
+  for (let f of fishes) {
+    // console.log(f.midpoint);
+    f.fish.draw(f.midpoint, 0.5);
   }
 }
 
@@ -152,25 +182,11 @@ function preload() {
 }
 
 function draw() {
+  background(255);
   backgroundScene.draw();
-  /*dock.resize(240, 160);
-      image(dock, 0, h / 3 + 10);*/
-  //place dock tiles
-  scale(-1, 1);
-  image(dockMidLeg, -w, h - 240);
-  image(dockMid, -w + 80, h - 240);
-  image(dockMid, -w + 160, h - 240);
-  image(dockMidLeg, -w + 240, h - 240);
-  image(dockMid, -w + 320, h - 240);
-  image(dockMid, -w + 400, h - 240);
-  image(dockEnd, -w + 480, h - 240);
+  doCastAnimation();
+  drawAllFish();
 
-  image(dockLeg, -w, h - 160);
-  image(dockLeg, -w + 240, h - 160);
-  image(dockLeg, -w + 480, h - 160);
-
-  //place player sprite
-  image(player, -posX, h - 350);
   //move player
   if (movingLeft) {
     posX -= speed;
@@ -181,18 +197,6 @@ function draw() {
     posX += speed;
   }
 }
-
-/*function createSceneObjectsTemp() {
-  //Just some basic visuals for the time being
-  fill("blue");
-  noStroke();
-  rect(0, height * 0.75, width, height * 0.25);
-  fill("brown");
-  rect(width * 0.5625, height * 0.625, width * 0.4375, height * 0.0375);
-  rect(width * 0.625, height * 0.625, width * 0.01875, height * 0.125);
-  fill("orange");
-  rect(width * 0.675, height * 0.5, width * 0.025, height * 0.125);
-}*/
 
 function mouseClicked() {
   castProgress = 0;
@@ -236,7 +240,9 @@ function genBezierPoints() {
     bezy.push(bezierPoint(y1, y2, y3, y4, t));
   }
 }
+
 function doCastAnimation() {
+  console.log("casting");
   stroke(0);
   noFill();
   if (castProgress < bezx.length) {
@@ -249,28 +255,4 @@ function doCastAnimation() {
   endShape();
 }
 
-//--------------------Draw mountain func----
-function drawMountain(color, heightM) {
-  fill(color);
-  stroke(MountainStroke);
-  beginShape();
-  vertex(0, height / 2);
-  const steps = 10;
-  for (let i = 0; i < steps + 1; i++) {
-    let x = (width * i) / steps;
-    let y =
-      height / 2 -
-      (random() * random() * random() * height) / 2 -
-      height / heightM;
-    vertex(x, y);
-  }
-  vertex(width, height / 2);
-  endShape(CLOSE);
-}
 //----------------------------------
-
-function regenerate() {
-  // random seeds
-  backgroundScene.regenerate();
-
-}
