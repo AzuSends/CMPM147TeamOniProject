@@ -63,8 +63,12 @@ const ColorSchemes = {
 class Fish {
   constructor(seed) {
     if (seed) randomSeed(seed);
+    let fishtext = new FishText();
     this.seed = seed;
-
+    this.name = fishtext.getname();
+    console.log(this.name);
+    this.description = fishtext.getdesc();
+    console.log(this.description);
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
 
