@@ -1,0 +1,51 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+  }
+  
+  body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f7fa;
+	padding: 20px;
+  }
+  
+  .container {
+	background: white;
+	padding: 20px;
+	border-radius: 8px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	max-width: 400px;
+	margin: auto;
+  }
+  
+  h2 {
+	text-align: center;
+	margin-bottom: 20px;
+  }
+  
+
+  
+  .hidden {
+	display: none;
+  }
+  
+
+
+    .right-column {
+    position: fixed;
+    top: 0;
+    width: 25vw;
+    height: 100vh;
+    background-color: lightgray;
+    padding: 10px;
+	overflow: auto;
+  }
+
+
+  .right-column {
+	right: 0; /* Sticks to the right */
+  }
+
+
+  

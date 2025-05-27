@@ -66,9 +66,9 @@ class Fish {
     let fishtext = new FishText();
     this.seed = seed;
     this.name = fishtext.getname();
-    console.log(this.name);
+    //console.log(this.name);
     this.description = fishtext.getdesc();
-    console.log(this.description);
+    //console.log(this.description);
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
 

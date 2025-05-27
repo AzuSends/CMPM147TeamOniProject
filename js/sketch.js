@@ -1,5 +1,5 @@
 /* exported setup, draw */
-
+const fishContainer = document.getElementById("fish-list");
 let bezx = [];
 let bezy = [];
 let castProgress = 0;
@@ -137,6 +137,7 @@ function draw() {
   if (movingRight) {
     posX += speed;
   }
+  displayfishes();
 }
 
 function createSceneObjectsTemp() {
@@ -282,6 +283,20 @@ function cloudAnim() {
         }
     }
     image(cloudGraphic, 0, 0);
+}
+function displayfishes(){//just to show off the fish stuff, remove this and the div in index when aquarium implemented?
+  	fishContainer.innerHTML = "";
+	  fishes.forEach((fish) => {
+      const messageDiv = document.createElement("div");
+      messageDiv.style.border = "solid #000000";
+      messageDiv.style.fontWeight = "bold";
+      messageDiv.textContent = `${fish.name}`;
+      const descDiv = document.createElement("div");
+      descDiv.textContent = `${fish.description}`;
+      descDiv.style.fontWeight = "normal";
+      messageDiv.appendChild(descDiv);
+      fishContainer.appendChild(messageDiv);
+	  });
 }
 
 function regenerate() {

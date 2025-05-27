@@ -5,7 +5,7 @@
             "animal":["#bird#", "Turtle", "Banana Slug","Panda", "Bull", "Worm"],
             "specimen":["dreamer", "specimen", "fish", "trickster", "opportunist", "Oddity", "Witty fish", "laid back fish", "hungry fish", "prankster", "meal", "Undergraduate", "derpy fish"],
             "agent":["cloud", "wave", "#bird#", "boat", "ship"],
-            "Compass":["Western", "Eastern", "Southern", "Northern"],
+            "compass":["Western", "Eastern", "Southern", "Northern"],
             "location":[ "American ", "Asian ", "European ", "Middle-Eastern ", "", "Antartic ", "African ", "#compass# #location#", "Alaskan"],
             "transVerb":["forget", "plant", "greet", "remember", "embrace", "feel", "love"],
             "emotion":["sorrow", "gladness", "joy", "heartache", "love", "forgiveness", "grace"],
