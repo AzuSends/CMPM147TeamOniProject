@@ -19,6 +19,7 @@ let freq = 0.05;
 let fishes = [];
 let fishSeeds = [];
 let fishParams;
+let displayFish = false;
 
 //player vars
 let player;
@@ -37,6 +38,7 @@ const MountainStroke = "#5C4033";
 
 const BackgroundColor = "#b0d5e6";
 const SeaColor = "#6495ed";
+
 
 //cloud vars
 let cloudGraphic;
@@ -84,6 +86,13 @@ function drawAllFish() {
   }
 }
 
+function drawNewestFish()
+{
+   let newestIndex = 0
+   let fish = fishes[newestIndex]
+   fish.draw((0, 0), 0.5)
+}
+
 function preload() {
   dockEnd = loadImage("./assets/dockEnd_x5.png");
   dockMid = loadImage("./assets/dockMid_x5.png");
@@ -110,7 +119,10 @@ function draw() {
     doCastAnimation();
   }
 
-  drawAllFish();
+  //drawAllFish();
+  if (displayFish == true){
+    drawNewestFish();
+  }
 
   perlinSky();
   cloudAnim();
@@ -141,7 +153,7 @@ function draw() {
   if (movingRight) {
     posX += speed;
   }
-  displayfishes();
+  //displayfishes();
 }
 
 function createSceneObjectsTemp() {
@@ -159,6 +171,7 @@ function createSceneObjectsTemp() {
 function mouseClicked() {
   castProgress = 0;
   makeFish();
+  displayFish = !displayFish
   saveGameState();
 }
 
