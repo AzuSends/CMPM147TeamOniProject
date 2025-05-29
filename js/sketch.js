@@ -1,5 +1,7 @@
 /* exported setup, draw */
 const fishContainer = document.getElementById("fish-list");
+
+const KEY = "LOCAL";
 let bezx = [];
 let bezy = [];
 let castProgress = 0;
@@ -61,6 +63,8 @@ function setup() {
   }
 
   createButton("reimagine").mousePressed(() => regenerate());
+  //createButton("clear saveData").mousePressed(() => localStorage.clear());//debugging
+  loadGameState();
   regenerate();
 }
 
@@ -69,7 +73,7 @@ function makeFish() {
   let fish = new Fish(seed);
   fishes.push(fish);
   fishSeeds.push(fish.seed);
-  console.log(fish);
+  //console.log(fish);
   return fish;
 }
 
@@ -155,6 +159,7 @@ function createSceneObjectsTemp() {
 function mouseClicked() {
   castProgress = 0;
   makeFish();
+  saveGameState();
 }
 
 //movement
@@ -302,4 +307,40 @@ function displayfishes(){//just to show off the fish stuff, remove this and the 
 function regenerate() {
   // random seeds
   skySeed = random(0, 2556);
+  //localStorage.clear();
+}
+function saveGameState() {
+  var fishNames= [];
+  var fishDescs = [];
+  var fishSeeds = [];
+  var fishAmount = 0;
+   fishes.forEach((fish) =>{
+    //console.log(`fish in fishes: ${fish.name}`);
+    fishNames.push(fish.name);
+    fishDescs.push(fish.description);
+    fishSeeds.push(fish.seed);
+    fishAmount++;
+  });
+  console.log(`amount of fish saved: ${fishAmount}`);
+  const fishData = {
+    fishNames,
+    fishDescs,
+    fishSeeds,
+    fishAmount
+  }
+  localStorage.setItem(KEY, JSON.stringify(fishData));
+}
+function loadGameState() {
+  const gameState = localStorage.getItem(KEY);
+  if (gameState) {
+    var fishData = JSON.parse(gameState);
+    console.log(`amount of fish loaded: ${fishData.fishAmount}`);
+    for(x  = 0; x < fishData.fishAmount; x++){
+      //console.log(`loading fish: ${fishData.fishNames[x]}`);
+      fishes.push(new Fish(fishData.fishSeeds[x],fishData.fishNames[x],fishData.fishDescs[x]));
+    }
+  }
+  else{
+    return;
+  }
 }
