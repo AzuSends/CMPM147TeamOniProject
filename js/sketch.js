@@ -10,12 +10,7 @@ let castProgress = 0;
 const w = 1200;
 const h = 600;
 
-let skySeed = 0;
-
 let fishSeed = 0;
-
-let amplitude = 20;
-let freq = 0.05;
 
 // fish vars
 let fishes = [];
@@ -38,10 +33,6 @@ let movingRight = false;
 
 let backgroundScene;
 
-// //cloud vars
-// let cloudGraphic;
-// let cloudOffsetX = 0;
-
 //bezier vars
 let castx = w * 0.675;
 let casty = h * 0.4; // Anchor point 1
@@ -53,7 +44,10 @@ let x4 = w * 0.15;
 let y4 = h * 0.75; // Anchor point 2
 
 class BackgroundScene {
-  constructor() {
+  constructor(w, h) {
+    this.width = w;
+    this.height = h;
+
     this.skySeed = 0;
     this.amplitude = 20;
     this.freq = 0.05;
@@ -66,9 +60,9 @@ class BackgroundScene {
     this.MountainColor4 = "#98888B";
     this.MountainStroke = "#5C4033";
     this.SeaColor = "#6495ed";
-    this.mountainGraphics = createGraphics(w, h);
+    this.mountainGraphics = createGraphics(this.width, this.height);
     this.drawMountains();
-    this.cloudGraphic = createGraphics(w, h);
+    this.cloudGraphic = createGraphics(this.width, this.height);
     this.cloudOffsetX = 0;
   }
 
@@ -96,58 +90,33 @@ class BackgroundScene {
     this.mountainGraphics.push();
     this.mountainGraphics.fill(color);
     this.mountainGraphics.beginShape();
-    this.mountainGraphics.vertex(0, height / 2);
+    this.mountainGraphics.vertex(0, this.height / 2);
     const steps = 10;
     for (let i = 0; i <= steps; i++) {
-      let x = (width * i) / steps;
+      let x = (this.width * i) / steps;
       let y =
-        height / 2 -
-        (random() * random() * random() * height) / 2 -
-        height / heightM;
+        this.height / 2 -
+        (random() * random() * random() * this.height) / 2 -
+        this.height / heightM;
       this.mountainGraphics.vertex(x, y);
     }
-    this.mountainGraphics.vertex(width, height / 2);
+    this.mountainGraphics.vertex(this.width, this.height / 2);
     this.mountainGraphics.endShape(CLOSE);
     this.mountainGraphics.pop();
   }
-
-  // perlinSky() {
-  //   let level = 450;
-  //   let scale = 0.09;
-  //   strokeWeight(2);
-  //   let drift = this.amplitude * sin(frameCount * this.freq);
-  //   for (let y = 0; y < h / 2; y += 2) {
-  //     let mod = map(y, 0, h / 2, 10, 1);
-  //     let squish = scale / mod;
-  //     let ny = squish * y + this.skySeed * 0.5;
-  //     for (let x = 0; x < w; x += 2) {
-  //       let nx = squish * (x + drift) + this.skySeed;
-  //       let c = level * noise(nx, ny);
-
-  //       let strokeColor = color(this.SeaColor);
-  //       if (c > 200) {
-  //         strokeColor = "skyblue";
-  //       }
-  //       stroke(strokeColor);
-  //       point(x, h - y - 1);
-  //     }
-  //   }
-  // }
 
   //perlinSky() function from corvuscorae reflected clouds project
   perlinSky() {
     let level = 450;
     let scale = 0.09;
-    noiseSeed(skySeed);
+    noiseSeed(this.skySeed);
     strokeWeight(4);
-    let drift = this.amplitude * sin(frameCount * freq);
-    for (let y = 0; y < h / 2; y += 4) {
-      // shifted up to reflect at horizon
-      // modify scale along y-axis, squishing it as y gets larger
-      let mod = map(y, 0, h / 2, 10, 1);
+    let drift = this.amplitude * sin(frameCount * this.freq);
+    for (let y = 0; y < this.height / 2; y += 4) {
+      let mod = map(y, 0, this.height / 2, 10, 1);
       let squish = scale / mod;
       let ny = squish * y + this.skySeed * 0.5;
-      for (let x = 0; x < w; x += 4) {
+      for (let x = 0; x < this.width; x += 4) {
         let nx = squish * (x + drift) + this.skySeed;
 
         let c = level * noise(nx, ny);
@@ -157,49 +126,88 @@ class BackgroundScene {
           strokeColor = "skyblue";
         }
         stroke(strokeColor);
-        point(x, h - y - 1);
+        point(x, this.height - y - 1);
       }
     }
   }
 
+  // scaled to base width and height proportionally, help from chatgpt https://chatgpt.com/share/683ab31b-e418-8007-87ff-7c767026879b
   dock() {
-    //place dock tiles
     push();
     scale(-1, 1);
-    image(dockMidLeg, -w, h - 240);
-    image(dockMid, -w + 80, h - 240);
-    image(dockMid, -w + 160, h - 240);
-    image(dockMidLeg, -w + 240, h - 240);
-    image(dockMid, -w + 320, h - 240);
-    image(dockMid, -w + 400, h - 240);
-    image(dockEnd, -w + 480, h - 240);
 
-    image(dockLeg, -w, h - 160);
-    image(dockLeg, -w + 240, h - 160);
-    image(dockLeg, -w + 480, h - 160);
+    // Define ratios based on assumed original canvas size (1200x600)
+    const baseW = 1200;
+    const baseH = 600;
 
-    //place player sprite
-    image(player, -posX, h - 350);
+    const scaleW = this.width / baseW;
+    const scaleH = this.height / baseH;
+
+    const baseX = -this.width;
+    const baseY = this.height;
+
+    // Adjusted Y positions
+    const legY = baseY - 160 * scaleH;
+    const midY = baseY - 240 * scaleH;
+    const playerY = baseY - 350 * scaleH;
+
+    // X offsets scaled
+    const dx = [0, 80, 160, 240, 320, 400, 480].map((x) => x * scaleW);
+    const legDx = [0, 240, 480].map((x) => x * scaleW);
+
+    // Draw dock mid and legs
+    image(dockMidLeg, baseX + dx[0], midY);
+    image(dockMid, baseX + dx[1], midY);
+    image(dockMid, baseX + dx[2], midY);
+    image(dockMidLeg, baseX + dx[3], midY);
+    image(dockMid, baseX + dx[4], midY);
+    image(dockMid, baseX + dx[5], midY);
+    image(dockEnd, baseX + dx[6], midY);
+
+    image(dockLeg, baseX + legDx[0], legY);
+    image(dockLeg, baseX + legDx[1], legY);
+    image(dockLeg, baseX + legDx[2], legY);
+
+    image(player, -posX, playerY);
+
     pop();
   }
 
+  // dock() {
+  //   push();
+  //   scale(-1, 1);
+  //   image(dockMidLeg, -1200, 600 - 240);
+  //   image(dockMid, -1200 + 80, 600 - 240);
+  //   image(dockMid, -1200 + 160, 600 - 240);
+  //   image(dockMidLeg, -1200 + 240, 600 - 240);
+  //   image(dockMid, -1200 + 320, 600 - 240);
+  //   image(dockMid, -1200 + 400, 600 - 240);
+  //   image(dockEnd, -1200 + 480, 600 - 240);
+
+  //   image(dockLeg, -1200, 600 - 160);
+  //   image(dockLeg, -1200 + 240, 600 - 160);
+  //   image(dockLeg, -1200 + 480, 600 - 160);
+
+  //   image(player, -posX, 600 - 350);
+  //   pop();
+  // }
+
   //draw clouds func
   cloudAnim() {
-    this.cloudOffsetX += 0.2; // Speed of cloud drift
+    this.cloudOffsetX += 0.2;
 
-    this.cloudGraphic.clear(); // Clear the buffer
+    this.cloudGraphic.clear();
     this.cloudGraphic.noStroke();
-    this.cloudGraphic.fill(255, 255, 255, 50); // soft white
+    this.cloudGraphic.fill(255, 255, 255, 50);
 
-    // Layered cloud passes
     const layers = [
       { scale: 0.004, alpha: 20, offsetMult: 0.5, size: 25 },
       { scale: 0.006, alpha: 50, offsetMult: 1.5, size: 18 },
     ];
 
     for (let layer of layers) {
-      for (let y = 0; y < height / 3; y += 10) {
-        for (let x = 0; x < width; x += 10) {
+      for (let y = 0; y < this.height / 3; y += 10) {
+        for (let x = 0; x < this.width; x += 10) {
           let n = noise(
             (x + this.cloudOffsetX * layer.offsetMult) * layer.scale,
             (y + random()) * layer.scale
@@ -219,7 +227,7 @@ function setup() {
   createCanvas(w, h);
 
   colorMode(HSB);
-  backgroundScene = new BackgroundScene();
+  backgroundScene = new BackgroundScene(1200, 600);
   //   createSceneObjectsTemp();
   fishParams = {
     maxWidth: w / 1.5,
