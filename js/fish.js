@@ -63,11 +63,11 @@ const ColorSchemes = {
 class Fish {
   constructor(seed, name, desc) {
     if (seed) randomSeed(seed);
-    if(name && desc){
+    if (name && desc) {
       this.name = name;
       this.description = desc;
     }
-    else{
+    else {
       let fishtext = new FishText();
       this.name = fishtext.getname();
       //console.log(this.name);
@@ -222,6 +222,8 @@ class Fish {
   }
 
   draw(midpoint, scaleRatio = 1) {
+
+
     colorMode(HSB);
     push();
     translate(midpoint.x, midpoint.y);

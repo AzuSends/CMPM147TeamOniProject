@@ -6,11 +6,14 @@ let bezx = [];
 let bezy = [];
 let castProgress = 0;
 
+
 //vars from corvuscorae reflected clouds project
 const w = 1200;
 const h = 600;
 
 let skySeed = 0;
+
+let fishSeed = 0;
 
 let amplitude = 20;
 let freq = 0.05;
@@ -19,7 +22,12 @@ let freq = 0.05;
 let fishes = [];
 let fishSeeds = [];
 let fishParams;
-let displayFish = false;
+let displayFish = true;
+let casting = false;
+let fishx;
+let fishy;
+let fishScale;
+let catchSpeed = 1.5;
 
 //player vars
 let player;
@@ -43,6 +51,17 @@ const SeaColor = "#6495ed";
 //cloud vars
 let cloudGraphic;
 let cloudOffsetX = 0;
+
+
+//bezier vars
+let castx = w * 0.675;
+let casty = h * 0.4; // Anchor point 1
+let x2 = w * 0.55;
+let y2 = h * .2; // Control point 1
+let x3 = w * 0.4;
+let y3 = h * 0.25; // Control point 2
+let x4 = w * 0.15;
+let y4 = h * 0.75; // Anchor point 2
 
 function setup() {
   createCanvas(w, h);
@@ -71,25 +90,26 @@ function setup() {
 }
 
 function makeFish() {
+  randomSeed(fishSeed)
   let seed = random(0, 10000);
+  console.log(seed)
   let fish = new Fish(seed);
   fishes.push(fish);
   fishSeeds.push(fish.seed);
   //console.log(fish);
-  return fish;
 }
 
 function drawAllFish() {
   for (let fish of fishes) {
     let midpoint = { x: random(0, w), y: random(0, h) };
-    fish.draw(midpoint, 0.5);
+    fish.draw((midpoint), 0.5);
   }
 }
 
-function drawNewestFish() {
-  let newestIndex = 0
+function drawNewestFish(xpos = -500, ypos = -500, scale) {
+  let newestIndex = fishes.length - 1;
   let fish = fishes[newestIndex]
-  fish.draw((0, 0), 0.5)
+  fish.draw({ x: xpos, y: ypos }, scale)
 }
 
 function preload() {
@@ -104,6 +124,8 @@ function preload() {
 
 function draw() {
   randomSeed(skySeed);
+  fishSeed += 1;
+  genBezierPoints();
 
   background(BackgroundColor);
   //------Call the mountain drawing---------
@@ -114,17 +136,32 @@ function draw() {
   drawMountain(MountainColor3, 80);
   //----
   createSceneObjectsTemp();
-  if (castProgress <= bezx.length) {
-    doCastAnimation();
-  }
 
-  drawAllFish();
-  // if (displayFish == true){
-  //   drawNewestFish();
-  // }
+
+  //drawAllFish();
+
 
   perlinSky();
+  if (castProgress <= bezx.length && casting == true) {
+    doCastAnimation();
+  }
   cloudAnim();
+  if (!casting) {
+    drawNewestFish(fishx, fishy, fishScale);
+    if (fishx < 500) {
+      fishx += 5 * catchSpeed
+    }
+    if (fishy > 200) {
+      fishy -= 3.5 * catchSpeed
+    }
+    if (fishScale < .5) {
+      fishScale += .0055 * catchSpeed
+    }
+  } else {
+    fishx = 140
+    fishy = 450
+    fishScale = 0.1
+  }
   /*dock.resize(240, 160);
       image(dock, 0, h / 3 + 10);*/
   //place dock tiles
@@ -146,11 +183,17 @@ function draw() {
   //move player
   if (movingLeft) {
     posX -= speed;
+    castx -= speed
+    x2 -= speed
+    x3 -= speed
   }
 
   // Move right
   if (movingRight) {
     posX += speed;
+    castx += speed
+    x2 += speed
+    x3 += speed
   }
   displayfishes();
 }
@@ -168,9 +211,13 @@ function createSceneObjectsTemp() {
 }
 
 function mouseClicked() {
-  castProgress = 0;
-  makeFish();
-  displayFish = !displayFish
+  if (castProgress >= bezx.length) {
+    makeFish();
+    castProgress = 0;
+    casting = false
+  } else if (casting == false) {
+    casting = true
+  }
   saveGameState();
 }
 
@@ -194,23 +241,22 @@ function keyReleased() {
 }
 
 function genBezierPoints() {
+  bezx = []
+  bezy = []
   noFill();
   strokeWeight(1);
   stroke(0);
-  let x1 = width * 0.675;
-  let y1 = height * 0.5; // Anchor point 1
-  let x2 = width * 0.5;
-  let y2 = height * 0.2; // Control point 1
-  let x3 = width * 0.3;
-  let y3 = height * 0.75; // Control point 2
-  let x4 = width * 0.3;
-  let y4 = height * 0.75; // Anchor point 2
-  //bezier(x1, y1, x2, y2, x3, y3, x4, y4);
-  for (let t = 0; t < 1; t += 0.01) {
-    bezx.push(bezierPoint(x1, x2, x3, x4, t));
-    bezy.push(bezierPoint(y1, y2, y3, y4, t));
+
+  for (let t = 0; t < 1; t += 0.01 * (Math.abs(t - 0.3)) * 4 + 0.005) {
+    bezx.push(bezierPoint(castx, x2, x3, x4, t));
+    bezy.push(bezierPoint(casty, y2, y3, y4, t));
   }
+  strokeWeight(4);
 }
+
+
+
+
 function doCastAnimation() {
   stroke(0);
   noFill();
@@ -229,15 +275,15 @@ function perlinSky() {
   let level = 450;
   let scale = 0.09;
   noiseSeed(skySeed);
-  strokeWeight(2);
+  strokeWeight(4);
   let drift = amplitude * sin(frameCount * freq);
-  for (let y = 0; y < h / 2; y += 2) {
+  for (let y = 0; y < h / 2; y += 4) {
     // shifted up to reflect at horizon
     // modify scale along y-axis, squishing it as y gets larger
     let mod = map(y, 0, h / 2, 10, 1);
     let squish = scale / mod;
     let ny = squish * y + skySeed * 0.5;
-    for (let x = 0; x < w; x += 2) {
+    for (let x = 0; x < w; x += 4) {
       let nx = squish * (x + drift) + skySeed;
 
       let c = level * noise(nx, ny);
@@ -286,11 +332,11 @@ function cloudAnim() {
   ];
 
   for (let layer of layers) {
-    for (let y = 0; y < height / 2; y += 10) {
+    for (let y = 0; y < height / 3; y += 10) {
       for (let x = 0; x < width; x += 10) {
         let n = noise(
           (x + cloudOffsetX * layer.offsetMult) * layer.scale,
-          y * layer.scale
+          (y + random()) * layer.scale
         );
         if (n > 0.5) {
           cloudGraphic.fill(255, 255, 255, layer.alpha);
