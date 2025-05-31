@@ -6,6 +6,7 @@ class BackgroundScene {
     this.skySeed = 0;
     this.amplitude = 20;
     this.freq = 0.05;
+    this.BackgroundColor = "#b0d5e6";
     //Mountain vars
     this.MountainColor = "#B29995";
     this.MountainColor1 = "#B9A19F";
@@ -14,53 +15,47 @@ class BackgroundScene {
     this.MountainColor4 = "#98888B";
     this.MountainStroke = "#5C4033";
     this.SeaColor = "#6495ed";
+    this.mountainGraphics = createGraphics(w, h);
+    this.drawMountains();
   }
 
   draw() {
-    this.drawMountains();
+    background(this.BackgroundColor);
+    image(this.mountainGraphics, 0, 0);
     this.perlinSky();
     this.dock();
   }
 
   drawMountains() {
+    this.mountainGraphics.push();
+    this.mountainGraphics.stroke(this.MountainStroke);
     this.drawMountain(this.MountainColor4, 90);
     this.drawMountain(this.MountainColor, 50);
     this.drawMountain(this.MountainColor1, 60);
     this.drawMountain(this.MountainColor2, 70);
     this.drawMountain(this.MountainColor3, 80);
+    this.mountainGraphics.pop();
   }
 
   //--------------------Draw mountain func----
   drawMountain(color, heightM) {
-    push();
-    fill(color);
-    stroke(this.MountainStroke);
-    beginShape();
-    vertex(0, height / 2);
+    this.mountainGraphics.push();
+    this.mountainGraphics.fill(color);
+    this.mountainGraphics.beginShape();
+    this.mountainGraphics.vertex(0, height / 2);
     const steps = 10;
-    for (let i = 0; i < steps + 1; i++) {
+    for (let i = 0; i <= steps; i++) {
       let x = (width * i) / steps;
       let y =
         height / 2 -
         (random() * random() * random() * height) / 2 -
         height / heightM;
-      vertex(x, y);
+      this.mountainGraphics.vertex(x, y);
     }
-    vertex(width, height / 2);
-    endShape(CLOSE);
-    pop();
+    this.mountainGraphics.vertex(width, height / 2);
+    this.mountainGraphics.endShape(CLOSE);
+    this.mountainGraphics.pop();
   }
-
-  // drawSceneObjects() {
-  //   fill("blue");
-  //   noStroke();
-  //   rect(0, height * 0.75, width, height * 0.25);
-  //   fill("brown");
-  //   rect(width * 0.5625, height * 0.625, width * 0.4375, height * 0.0375);
-  //   rect(width * 0.625, height * 0.625, width * 0.01875, height * 0.125);
-  //   fill("orange");
-  //   rect(width * 0.675, height * 0.5, width * 0.025, height * 0.125);
-  // }
 
   perlinSky() {
     let level = 450;
@@ -108,7 +103,6 @@ class BackgroundScene {
 }
 
 let backgroundScene;
-const BackgroundColor = "#b0d5e6";
 
 let bezx = [];
 let bezy = [];
@@ -182,7 +176,6 @@ function preload() {
 }
 
 function draw() {
-  background(255);
   backgroundScene.draw();
   doCastAnimation();
   drawAllFish();
