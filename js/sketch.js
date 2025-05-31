@@ -86,11 +86,10 @@ function drawAllFish() {
   }
 }
 
-function drawNewestFish()
-{
-   let newestIndex = 0
-   let fish = fishes[newestIndex]
-   fish.draw((0, 0), 0.5)
+function drawNewestFish() {
+  let newestIndex = 0
+  let fish = fishes[newestIndex]
+  fish.draw((0, 0), 0.5)
 }
 
 function preload() {
@@ -119,10 +118,10 @@ function draw() {
     doCastAnimation();
   }
 
-  //drawAllFish();
-  if (displayFish == true){
-    drawNewestFish();
-  }
+  drawAllFish();
+  // if (displayFish == true){
+  //   drawNewestFish();
+  // }
 
   perlinSky();
   cloudAnim();
@@ -153,7 +152,7 @@ function draw() {
   if (movingRight) {
     posX += speed;
   }
-  //displayfishes();
+  displayfishes();
 }
 
 function createSceneObjectsTemp() {
@@ -274,47 +273,47 @@ function drawMountain(color, heightM) {
 
 //draw clouds func
 function cloudAnim() {
-    cloudOffsetX += 0.2; // Speed of cloud drift
+  cloudOffsetX += 0.2; // Speed of cloud drift
 
-    cloudGraphic.clear(); // Clear the buffer
-    cloudGraphic.noStroke();
-    cloudGraphic.fill(255, 255, 255, 50); // soft white
+  cloudGraphic.clear(); // Clear the buffer
+  cloudGraphic.noStroke();
+  cloudGraphic.fill(255, 255, 255, 50); // soft white
 
-    // Layered cloud passes
-    const layers = [
-        { scale: 0.004, alpha: 20, offsetMult: 0.5, size: 25 },
-        { scale: 0.006, alpha: 50, offsetMult: 1.5, size: 18 }
-    ];
+  // Layered cloud passes
+  const layers = [
+    { scale: 0.004, alpha: 20, offsetMult: 0.5, size: 25 },
+    { scale: 0.006, alpha: 50, offsetMult: 1.5, size: 18 }
+  ];
 
-    for (let layer of layers) {
-        for (let y = 0; y < height/2; y += 10) {
-            for (let x = 0; x < width; x += 10) {
-                let n = noise(
-                (x + cloudOffsetX * layer.offsetMult) * layer.scale,
-                y * layer.scale
-                );
-                if (n > 0.5) {
-                    cloudGraphic.fill(255, 255, 255, layer.alpha);
-                    cloudGraphic.ellipse(x, y, layer.size, layer.size * 0.75);
-                }
-            }
+  for (let layer of layers) {
+    for (let y = 0; y < height / 2; y += 10) {
+      for (let x = 0; x < width; x += 10) {
+        let n = noise(
+          (x + cloudOffsetX * layer.offsetMult) * layer.scale,
+          y * layer.scale
+        );
+        if (n > 0.5) {
+          cloudGraphic.fill(255, 255, 255, layer.alpha);
+          cloudGraphic.ellipse(x, y, layer.size, layer.size * 0.75);
         }
+      }
     }
-    image(cloudGraphic, 0, 0);
+  }
+  image(cloudGraphic, 0, 0);
 }
-function displayfishes(){//just to show off the fish stuff, remove this and the div in index when aquarium implemented?
-  	fishContainer.innerHTML = "";
-	  fishes.forEach((fish) => {
-      const messageDiv = document.createElement("div");
-      messageDiv.style.border = "solid #000000";
-      messageDiv.style.fontWeight = "bold";
-      messageDiv.textContent = `${fish.name}`;
-      const descDiv = document.createElement("div");
-      descDiv.textContent = `${fish.description}`;
-      descDiv.style.fontWeight = "normal";
-      messageDiv.appendChild(descDiv);
-      fishContainer.appendChild(messageDiv);
-	  });
+function displayfishes() {//just to show off the fish stuff, remove this and the div in index when aquarium implemented?
+  fishContainer.innerHTML = "";
+  fishes.forEach((fish) => {
+    const messageDiv = document.createElement("div");
+    messageDiv.style.border = "solid #000000";
+    messageDiv.style.fontWeight = "bold";
+    messageDiv.textContent = `${fish.name}`;
+    const descDiv = document.createElement("div");
+    descDiv.textContent = `${fish.description}`;
+    descDiv.style.fontWeight = "normal";
+    messageDiv.appendChild(descDiv);
+    fishContainer.appendChild(messageDiv);
+  });
 }
 
 function regenerate() {
@@ -323,11 +322,11 @@ function regenerate() {
   //localStorage.clear();
 }
 function saveGameState() {
-  var fishNames= [];
+  var fishNames = [];
   var fishDescs = [];
   var fishSeeds = [];
   var fishAmount = 0;
-   fishes.forEach((fish) =>{
+  fishes.forEach((fish) => {
     //console.log(`fish in fishes: ${fish.name}`);
     fishNames.push(fish.name);
     fishDescs.push(fish.description);
@@ -348,12 +347,12 @@ function loadGameState() {
   if (gameState) {
     var fishData = JSON.parse(gameState);
     console.log(`amount of fish loaded: ${fishData.fishAmount}`);
-    for(x  = 0; x < fishData.fishAmount; x++){
+    for (x = 0; x < fishData.fishAmount; x++) {
       //console.log(`loading fish: ${fishData.fishNames[x]}`);
-      fishes.push(new Fish(fishData.fishSeeds[x],fishData.fishNames[x],fishData.fishDescs[x]));
+      fishes.push(new Fish(fishData.fishSeeds[x], fishData.fishNames[x], fishData.fishDescs[x]));
     }
   }
-  else{
+  else {
     return;
   }
 }
