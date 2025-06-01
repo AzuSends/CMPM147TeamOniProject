@@ -57,7 +57,7 @@ class Aquarium {
   }
 
   aquarium() {
-    this.aquariumGraphic.background(100);
+    this.aquariumGraphic.background("#191970");
   }
 }
 
@@ -116,7 +116,7 @@ function drawAllFish() {
       }
       let flipped = fish.direction.x === 1;
       fish.move();
-      fish.draw(fish.position, 0.5, flipped);
+      fish.draw(fish.position, 0.3, flipped);
     }
   }
 }

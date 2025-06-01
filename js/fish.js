@@ -78,15 +78,16 @@ class Fish {
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
     this.position;
     this.scale;
-    this.direction = { x: 1, y: 0 };
-    this.speed = random(1, 5);
+    this.direction = { x: 1, y: 0 }; // 1 == right/up, -1 == left/down
+    this.speed = random(0.5, 3); // how fast the fish moves
 
     let w = this.width / 2;
     let h = this.height / 2;
 
     this.mainColor = color(random(255), 100, 100);
     this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
-    this.strokeColor = ColorSchemes.getShadow(this.mainColor);
+    this.strokeColor = "#000000";
+    //ColorSchemes.getShadow(this.mainColor);
 
     this.body = {
       points: {
@@ -242,7 +243,7 @@ class Fish {
       scale(scaleRatio);
     }
     stroke(this.strokeColor);
-    strokeWeight(2);
+    strokeWeight(10);
     for (let fin of Object.values(this.fins)) {
       this.drawFin(fin.type, fin.points);
       // this.drawPoints(fin.points);
@@ -341,9 +342,12 @@ class Fish {
   }
 
   drawEye(pt) {
+    push();
+    noStroke();
     fill("white");
     ellipse(pt.x, pt.y, this.height / 7);
     fill("black");
     ellipse(pt.x, pt.y, this.height / 12);
+    pop();
   }
 }

@@ -44,6 +44,7 @@ class BackgroundScene {
   drawMountain(color, heightM) {
     this.mountainGraphics.push();
     this.mountainGraphics.fill(color);
+    this.mountainGraphics.strokeWeight(5);
     this.mountainGraphics.beginShape();
     this.mountainGraphics.vertex(0, this.height / 2);
     const steps = 10;
@@ -65,7 +66,7 @@ class BackgroundScene {
     let level = 450;
     let scale = 0.09;
     noiseSeed(this.skySeed);
-    strokeWeight(4);
+    strokeWeight(5);
     let drift = this.amplitude * sin(frameCount * this.freq);
     for (let y = 0; y < this.height / 2; y += 4) {
       let mod = map(y, 0, this.height / 2, 10, 1);
@@ -156,8 +157,8 @@ class BackgroundScene {
     this.cloudGraphic.fill(255, 255, 255, 50);
 
     const layers = [
-      { scale: 0.004, alpha: 20, offsetMult: 0.5, size: 25 },
-      { scale: 0.006, alpha: 50, offsetMult: 1.5, size: 18 },
+      { scale: 0.004, alpha: 50, offsetMult: 0.5, size: 25 },
+      { scale: 0.006, alpha: 100, offsetMult: 1.5, size: 18 },
     ];
 
     for (let layer of layers) {
@@ -169,6 +170,7 @@ class BackgroundScene {
           );
           if (n > 0.5) {
             this.cloudGraphic.fill(255, 255, 255, layer.alpha);
+            // this.cloudGraphic.rect(x, y, layer.size, layer.size);
             this.cloudGraphic.ellipse(x, y, layer.size, layer.size * 0.75);
           }
         }
