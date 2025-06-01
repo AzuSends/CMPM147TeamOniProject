@@ -6,9 +6,9 @@ let bezx = [];
 let bezy = [];
 let castProgress = 0;
 
-//vars from corvuscorae reflected clouds project
 const w = 1200;
 const h = 600;
+const h2 = 600;
 
 let fishSeed = 0;
 
@@ -32,6 +32,7 @@ let movingLeft = false;
 let movingRight = false;
 
 let backgroundScene;
+let aquariumScene;
 
 //bezier vars
 let castx = w * 0.675;
@@ -43,11 +44,29 @@ let y3 = h * 0.25; // Control point 2
 let x4 = w * 0.15;
 let y4 = h * 0.75; // Anchor point 2
 
-function setup() {
-  createCanvas(w, h);
+class Aquarium {
+  constructor(w, h) {
+    this.width = w;
+    this.height = h;
+    this.aquariumGraphic = createGraphics(this.width, this.height);
+    this.aquarium();
+  }
 
+  draw() {
+    image(this.aquariumGraphic, 0, h);
+  }
+
+  aquarium() {
+    this.aquariumGraphic.background(100);
+  }
+}
+
+function setup() {
+  createCanvas(w, h + h2);
+  // pixelDensity(5);
   colorMode(HSB);
   backgroundScene = new BackgroundScene(w, h);
+  aquariumScene = new Aquarium(w, h2);
   //   createSceneObjectsTemp();
   fishParams = {
     maxWidth: w / 1.5,
@@ -55,7 +74,6 @@ function setup() {
     maxHeight: h / 1.5,
     minHeight: h / 6,
   };
-  makeFish();
 
   genBezierPoints();
   if (bezx.length != bezy.length) {
@@ -64,6 +82,8 @@ function setup() {
 
   //createButton("clear saveData").mousePressed(() => localStorage.clear());//debugging
   loadGameState();
+  setFishPositions();
+  console.log(fishes);
 }
 
 function makeFish() {
@@ -76,10 +96,28 @@ function makeFish() {
   //console.log(fish);
 }
 
+function setFishPositions() {
+  for (let fish of fishes) {
+    let midpoint = { x: random(0, w), y: random(h, h + h2) };
+    fish.position = midpoint;
+  }
+}
+
 function drawAllFish() {
   for (let fish of fishes) {
-    let midpoint = { x: random(0, w), y: random(0, h) };
-    fish.draw(midpoint, 0.5);
+    if (fish.position.y > h) {
+      let speed = random(0, 3);
+      if (fish.position.x < 0) {
+        fish.direction = { x: 1, y: 0 };
+        fish.speed = speed;
+      } else if (fish.position.x > width) {
+        fish.direction = { x: -1, y: 0 };
+        fish.speed = speed;
+      }
+      let flipped = fish.direction.x === 1;
+      fish.move();
+      fish.draw(fish.position, 0.5, flipped);
+    }
   }
 }
 
@@ -103,6 +141,7 @@ function draw() {
   fishSeed += 1;
   genBezierPoints();
   backgroundScene.draw();
+  aquariumScene.draw();
 
   if (castProgress <= bezx.length && casting == true) {
     doCastAnimation();
@@ -140,6 +179,7 @@ function draw() {
     x2 += speed;
     x3 += speed;
   }
+  drawAllFish();
   displayfishes();
 }
 

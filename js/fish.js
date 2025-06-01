@@ -66,8 +66,7 @@ class Fish {
     if (name && desc) {
       this.name = name;
       this.description = desc;
-    }
-    else {
+    } else {
       let fishtext = new FishText();
       this.name = fishtext.getname();
       //console.log(this.name);
@@ -77,6 +76,10 @@ class Fish {
     this.seed = seed;
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
+    this.position;
+    this.scale;
+    this.direction = { x: 1, y: 0 };
+    this.speed = random(1, 5);
 
     let w = this.width / 2;
     let h = this.height / 2;
@@ -146,6 +149,11 @@ class Fish {
       fin.points = finPoints;
       fin.type = finType;
     }
+  }
+
+  move() {
+    this.position.x += this.direction.x * this.speed;
+    this.position.y += this.direction.y * this.speed;
   }
 
   finArc() {
@@ -221,13 +229,18 @@ class Fish {
     return fin;
   }
 
-  draw(midpoint, scaleRatio = 1) {
-
+  draw(midpoint, scaleRatio = 1, flip = false) {
+    if (midpoint) this.position = midpoint;
+    this.scale = scaleRatio;
 
     colorMode(HSB);
     push();
-    translate(midpoint.x, midpoint.y);
-    scale(scaleRatio);
+    translate(this.position.x, this.position.y);
+    if (flip) {
+      scale(-scaleRatio, scaleRatio);
+    } else {
+      scale(scaleRatio);
+    }
     stroke(this.strokeColor);
     strokeWeight(2);
     for (let fin of Object.values(this.fins)) {
