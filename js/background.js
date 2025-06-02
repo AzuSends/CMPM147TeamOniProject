@@ -3,6 +3,9 @@ class BackgroundScene {
     this.width = w;
     this.height = h;
 
+    this.strokeColor;
+    this.noiseMap = [];
+
     this.skySeed = 0;
     this.amplitude = 20;
     this.freq = 0.05;
@@ -19,6 +22,7 @@ class BackgroundScene {
     this.drawMountains();
     this.cloudGraphic = createGraphics(this.width, this.height);
     this.cloudOffsetX = 0;
+    this.perlinNoise();
   }
 
   draw() {
@@ -61,29 +65,57 @@ class BackgroundScene {
     this.mountainGraphics.pop();
   }
 
-  //perlinSky() function from corvuscorae reflected clouds project
-  perlinSky() {
+  //Generates the noise values for all points in the perlinSky function
+  perlinNoise(){
+    noiseSeed(this.skySeed);
     let level = 450;
     let scale = 0.09;
-    noiseSeed(this.skySeed);
-    strokeWeight(5);
     let drift = this.amplitude * sin(frameCount * this.freq);
-    for (let y = 0; y < this.height / 2; y += 4) {
+    for (let y = 0; y < this.height / 2; y += 1) {
+      let rowTemp = []
       let mod = map(y, 0, this.height / 2, 10, 1);
       let squish = scale / mod;
       let ny = squish * y + this.skySeed * 0.5;
-      for (let x = 0; x < this.width; x += 4) {
+      for (let x = 0; x < this.width * 2; x += 1) {
         let nx = squish * (x + drift) + this.skySeed;
-
-        let c = level * noise(nx, ny);
-
-        let strokeColor = color(this.SeaColor);
-        if (c > 200) {
-          strokeColor = "skyblue";
-        }
-        stroke(strokeColor);
-        point(x, this.height - y - 1);
+        rowTemp.push(level * noise(nx, ny))
       }
+      this.noiseMap.push(rowTemp)
+    }
+  }
+
+  //perlinSky() function from corvuscorae reflected clouds project
+  perlinSky() {
+
+    strokeWeight(5);
+    let lightBlue = []
+    let darkBlue = []
+    let c = 0;
+    let drift = this.amplitude * sin(frameCount * this.freq);
+    drift += 20
+    for (let y = 0; y < this.height / 2; y += 4) {
+      for (let x = 0; x < this.width; x += 4) {
+        if (this.noiseMap[y] != null){
+          c = this.noiseMap[y][x + Math.floor(drift)]
+        } else{
+          c = 0
+        }
+        
+        
+        if (c > 200) {
+          lightBlue.push([x,this.height - y - 1])
+        } else{
+          darkBlue.push([x,this.height - y - 1])
+        }
+      }
+    }
+    stroke("skyblue")
+    for (let i = 0; i < lightBlue.length; i++){
+      point(lightBlue[i][0], lightBlue[i][1]);
+    }
+    stroke(this.SeaColor)
+    for (let i = 0; i < darkBlue.length; i++){
+      point(darkBlue[i][0], darkBlue[i][1]);
     }
   }
 
