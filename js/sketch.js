@@ -32,11 +32,12 @@ let movingLeft = false;
 let movingRight = false;
 
 //playerAnim vars
-let idle;
+//let idle;
 let pAnim1;
 let pAnim2;
 let pAnim3;
 let pAnim4;
+let animating = false;
 
 let backgroundScene;
 let aquariumScene;
@@ -142,13 +143,14 @@ function preload() {
   dockLeg = loadImage("./assets/dockLeg_x5.png");
 
   //player img
-  idle = loadImage("./assets/fish_x5.png");
-  player = idle;
+  //idle = loadImage("./assets/fish_x5.png");
+  //player = idle;
   //load player anim
   pAnim1 = loadImage("./assets/fish anim1.png");
   pAnim2 = loadImage("./assets/fish anim2.png");
   pAnim3 = loadImage("./assets/fish anim3.png");
   pAnim4 = loadImage("./assets/fish anim4.png");
+  player = pAnim1;
 
 }
 
@@ -195,8 +197,6 @@ function draw() {
     x3 += speed;
   }
 
-  image(player, posX, h - 350);
-
   drawAllFish();
   displayfishes();
 }
@@ -209,7 +209,7 @@ function mouseClicked() {
   } else if (casting == false) {
     casting = true;
   }
-  rodAnim(1000);
+  rodAnim(200);
   saveGameState();
 }
 
@@ -233,6 +233,7 @@ function keyReleased() {
 }
 
 function rodAnim(waitTime) {
+  animating = true;
   setTimeout(() => {
     console.log("frame1");
     player = pAnim1;
@@ -240,19 +241,20 @@ function rodAnim(waitTime) {
   setTimeout(() => {
     console.log("frame2");
     player = pAnim2;
-  }, waitTime);
+  }, waitTime + 200);
   setTimeout(() => {
     console.log("frame3");
     player = pAnim3;
-  }, waitTime);
+  }, waitTime + 400);
   setTimeout(() => {
     console.log("frame4");
     player = pAnim4;
-  }, waitTime);
+  }, waitTime + 800);
   setTimeout(() => {
     console.log("idle");
-    player = idle;
-  }, waitTime);
+    player = pAnim1;
+    animating = false;
+  }, waitTime + 1000);
 }
 
 function genBezierPoints() {

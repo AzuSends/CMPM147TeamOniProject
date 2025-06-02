@@ -124,9 +124,8 @@ class BackgroundScene {
     image(dockLeg, baseX + legDx[1], legY);
     image(dockLeg, baseX + legDx[2], legY);
 
-    image(player, -posX, playerY);
-
     pop();
+    image(player, posX, playerY);
   }
 
   // dock() {
