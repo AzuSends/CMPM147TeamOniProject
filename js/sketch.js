@@ -75,6 +75,7 @@ function setup() {
     minHeight: h / 6,
   };
 
+  makeFish();
   genBezierPoints();
   if (bezx.length != bezy.length) {
     console.log("Issues defining fishing arc, expect undefined behavior");
