@@ -11,6 +11,7 @@ const h = 600;
 const h2 = 600;
 
 let fishSeed = 0;
+let rod;
 
 // fish vars
 let fishes = [];
@@ -27,6 +28,7 @@ let catchSpeed = 1.5;
 let player;
 let speed = 5;
 let posX = w - 320;
+let posY = h / 3 + 53
 
 let movingLeft = false;
 let movingRight = false;
@@ -42,15 +44,6 @@ let animating = false;
 let backgroundScene;
 let aquariumScene;
 
-//bezier vars
-let castx = w * 0.675;
-let casty = h * 0.4; // Anchor point 1
-let x2 = w * 0.55;
-let y2 = h * 0.2; // Control point 1
-let x3 = w * 0.4;
-let y3 = h * 0.25; // Control point 2
-let x4 = w * 0.15;
-let y4 = h * 0.75; // Anchor point 2
 
 class Aquarium {
   constructor(w, h) {
@@ -82,17 +75,58 @@ function setup() {
     maxHeight: h / 1.5,
     minHeight: h / 6,
   };
-
+  rod = new RodCast(posX, posY, 100);
   makeFish();
-  genBezierPoints();
-  if (bezx.length != bezy.length) {
-    console.log("Issues defining fishing arc, expect undefined behavior");
-  }
+
 
   //createButton("clear saveData").mousePressed(() => localStorage.clear());//debugging
   loadGameState();
   setFishPositions();
   console.log(fishes);
+}
+
+function draw() {
+  fishSeed += 1;
+  backgroundScene.draw();
+  aquariumScene.draw();
+
+  if (casting == true) {
+    //doCastAnimation();
+    rod.update();
+
+  }
+
+  if (!casting) {
+    drawNewestFish(fishx, fishy, fishScale);
+    if (fishx < 500) {
+      fishx += 5 * catchSpeed;
+    }
+    if (fishy > 200) {
+      fishy -= 3.5 * catchSpeed;
+    }
+    if (fishScale < 0.5) {
+      fishScale += 0.0055 * catchSpeed;
+    }
+  } else {
+    fishx = 140;
+    fishy = 450;
+    fishScale = 0.1;
+  }
+
+  //move player
+  if (movingLeft) {
+    posX -= speed;
+    rod.updatePos(posX);
+  }
+
+  // Move right
+  if (movingRight) {
+    posX += speed;
+    rod.updatePos(posX);
+  }
+
+  drawAllFish();
+  displayfishes();
 }
 
 function makeFish() {
@@ -154,62 +188,17 @@ function preload() {
 
 }
 
-function draw() {
-  fishSeed += 1;
-  genBezierPoints();
-  backgroundScene.draw();
-  aquariumScene.draw();
 
-  if (castProgress <= bezx.length && casting == true) {
-    doCastAnimation();
-  }
-
-  if (!casting) {
-    drawNewestFish(fishx, fishy, fishScale);
-    if (fishx < 500) {
-      fishx += 5 * catchSpeed;
-    }
-    if (fishy > 200) {
-      fishy -= 3.5 * catchSpeed;
-    }
-    if (fishScale < 0.5) {
-      fishScale += 0.0055 * catchSpeed;
-    }
-  } else {
-    fishx = 140;
-    fishy = 450;
-    fishScale = 0.1;
-  }
-
-  //move player
-  if (movingLeft) {
-    posX -= speed;
-    castx -= speed;
-    x2 -= speed;
-    x3 -= speed;
-  }
-
-  // Move right
-  if (movingRight) {
-    posX += speed;
-    castx += speed;
-    x2 += speed;
-    x3 += speed;
-  }
-
-  drawAllFish();
-  displayfishes();
-}
 
 function mouseClicked() {
-  if (castProgress >= bezx.length) {
+  if (rod.checkIfCast() == false) {
     makeFish();
+    rod.reset();
     castProgress = 0;
     casting = false;
   } else if (casting == false) {
-    casting = true;
+    rodAnim(200);
   }
-  rodAnim(200);
   saveGameState();
 }
 
@@ -254,35 +243,13 @@ function rodAnim(waitTime) {
     console.log("idle");
     player = pAnim1;
     animating = false;
+    casting = true
+    rod.startCast();
   }, waitTime + 1000);
 }
 
-function genBezierPoints() {
-  bezx = [];
-  bezy = [];
-  noFill();
-  strokeWeight(1);
-  stroke(0);
 
-  for (let t = 0; t < 1; t += 0.01 * Math.abs(t - 0.3) * 4 + 0.005) {
-    bezx.push(bezierPoint(castx, x2, x3, x4, t));
-    bezy.push(bezierPoint(casty, y2, y3, y4, t));
-  }
-  strokeWeight(4);
-}
 
-function doCastAnimation() {
-  stroke(0);
-  noFill();
-  if (castProgress < bezx.length) {
-    castProgress += 1;
-  }
-  beginShape();
-  for (let i = 0; i < castProgress; i++) {
-    vertex(bezx[i], bezy[i]);
-  }
-  endShape();
-}
 
 function displayfishes() {
   //just to show off the fish stuff, remove this and the div in index when aquarium implemented?
@@ -339,4 +306,8 @@ function loadGameState() {
   } else {
     return;
   }
+}
+
+function fishmagendom() {
+  localStorage.clear();
 }

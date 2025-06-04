@@ -1,3 +1,5 @@
+/* exported BackgroundScene */
+
 class BackgroundScene {
   constructor(w, h) {
     this.width = w;
@@ -66,7 +68,7 @@ class BackgroundScene {
   }
 
   //Generates the noise values for all points in the perlinSky function
-  perlinNoise(){
+  perlinNoise() {
     noiseSeed(this.skySeed);
     let level = 450;
     let scale = 0.09;
@@ -95,26 +97,26 @@ class BackgroundScene {
     drift += 20
     for (let y = 0; y < this.height / 2; y += 4) {
       for (let x = 0; x < this.width; x += 4) {
-        if (this.noiseMap[y] != null){
+        if (this.noiseMap[y] != null) {
           c = this.noiseMap[y][x + Math.floor(drift)]
-        } else{
+        } else {
           c = 0
         }
-        
-        
+
+
         if (c > 200) {
-          lightBlue.push([x,this.height - y - 1])
-        } else{
-          darkBlue.push([x,this.height - y - 1])
+          lightBlue.push([x, this.height - y - 1])
+        } else {
+          darkBlue.push([x, this.height - y - 1])
         }
       }
     }
     stroke("skyblue")
-    for (let i = 0; i < lightBlue.length; i++){
+    for (let i = 0; i < lightBlue.length; i++) {
       point(lightBlue[i][0], lightBlue[i][1]);
     }
     stroke(this.SeaColor)
-    for (let i = 0; i < darkBlue.length; i++){
+    for (let i = 0; i < darkBlue.length; i++) {
       point(darkBlue[i][0], darkBlue[i][1]);
     }
   }
