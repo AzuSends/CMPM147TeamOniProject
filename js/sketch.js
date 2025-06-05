@@ -28,7 +28,7 @@ let catchSpeed = 1.5;
 let player;
 let speed = 5;
 let posX = w - 320;
-let posY = h / 3 + 53
+let posY = h / 3 + 53;
 
 let movingLeft = false;
 let movingRight = false;
@@ -43,7 +43,6 @@ let animating = false;
 
 let backgroundScene;
 let aquariumScene;
-
 
 class Aquarium {
   constructor(w, h) {
@@ -78,7 +77,6 @@ function setup() {
   rod = new RodCast(posX, posY, 100);
   makeFish();
 
-
   //createButton("clear saveData").mousePressed(() => localStorage.clear());//debugging
   loadGameState();
   setFishPositions();
@@ -93,7 +91,6 @@ function draw() {
   if (casting == true) {
     //doCastAnimation();
     rod.update();
-
   }
 
   if (!casting) {
@@ -125,8 +122,9 @@ function draw() {
     rod.updatePos(posX);
   }
 
-  drawAllFish();
+  drawAcquariumFish();
   displayfishes();
+  mouseHover();
 }
 
 function makeFish() {
@@ -146,7 +144,13 @@ function setFishPositions() {
   }
 }
 
-function drawAllFish() {
+function mouseHover() {
+  for (let fish of fishes) {
+    fish.hover();
+  }
+}
+
+function drawAcquariumFish() {
   for (let fish of fishes) {
     if (fish.position.y > h) {
       let speed = random(0, 3);
@@ -185,10 +189,7 @@ function preload() {
   pAnim3 = loadImage("./assets/fish anim3.png");
   pAnim4 = loadImage("./assets/fish anim4.png");
   player = pAnim1;
-
 }
-
-
 
 function mouseClicked() {
   if (rod.checkIfCast() == false) {
@@ -243,13 +244,10 @@ function rodAnim(waitTime) {
     console.log("idle");
     player = pAnim1;
     animating = false;
-    casting = true
+    casting = true;
     rod.startCast();
   }, waitTime + 1000);
 }
-
-
-
 
 function displayfishes() {
   //just to show off the fish stuff, remove this and the div in index when aquarium implemented?

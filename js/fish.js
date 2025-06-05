@@ -87,6 +87,7 @@ class Fish {
     this.mainColor = color(random(255), 100, 100);
     this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
     this.strokeColor = "#000000";
+    this.strokeWeight = 10;
     //ColorSchemes.getShadow(this.mainColor);
 
     this.body = {
@@ -150,6 +151,33 @@ class Fish {
       fin.points = finPoints;
       fin.type = finType;
     }
+  }
+
+  hover() {
+    let topleft = {
+      x: this.position.x - (this.width * this.scale) / 2,
+      y: this.position.y - (this.height * 0.7 * this.scale) / 2,
+    };
+    if (
+      mouseX > topleft.x &&
+      mouseX < topleft.x + this.width * this.scale &&
+      mouseY > topleft.y &&
+      mouseY < topleft.y + this.height * 0.7 * this.scale
+    ) {
+      console.log("hovering over" + this.name);
+      this.strokeWeight = 15;
+      this.strokeColor = "#FFFF00";
+    } else {
+      this.strokeWeight = 10;
+      this.strokeColor = "#000000";
+    }
+    // if (d < this.width) {
+    //   this.scale = 3;
+    //   this.strokeWeight = 15;
+    // } else {
+    //   this.scale = 1;
+    //   this.strokeWeight = 10;
+    // }
   }
 
   move() {
@@ -230,6 +258,15 @@ class Fish {
     return fin;
   }
 
+  debugbox() {
+    rect(
+      -this.width / 2,
+      -(this.height * 0.7) / 2,
+      this.width,
+      this.height * 0.7
+    );
+  }
+
   draw(midpoint, scaleRatio = 1, flip = false) {
     if (midpoint) this.position = midpoint;
     this.scale = scaleRatio;
@@ -242,8 +279,10 @@ class Fish {
     } else {
       scale(scaleRatio);
     }
+    strokeWeight(2);
+    // this.debugbox();
     stroke(this.strokeColor);
-    strokeWeight(10);
+    strokeWeight(this.strokeWeight);
     for (let fin of Object.values(this.fins)) {
       this.drawFin(fin.type, fin.points);
       // this.drawPoints(fin.points);
