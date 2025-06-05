@@ -73,6 +73,7 @@ class Fish {
       this.description = fishtext.getdesc();
       //console.log(this.description);
     }
+    this.rarity = ceil(random(0, 5));
     this.seed = seed;
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
@@ -158,12 +159,12 @@ class Fish {
       x: this.position.x - (this.width * this.scale) / 2,
       y: this.position.y - (this.height * 0.7 * this.scale) / 2,
     };
-    if (
+    let mouseclick =
       mouseX > topleft.x &&
       mouseX < topleft.x + this.width * this.scale &&
       mouseY > topleft.y &&
-      mouseY < topleft.y + this.height * 0.7 * this.scale
-    ) {
+      mouseY < topleft.y + this.height * 0.7 * this.scale;
+    if (mouseclick) {
       console.log("hovering over" + this.name);
       this.strokeWeight = 15;
       this.strokeColor = "#FFFF00";
@@ -171,13 +172,7 @@ class Fish {
       this.strokeWeight = 10;
       this.strokeColor = "#000000";
     }
-    // if (d < this.width) {
-    //   this.scale = 3;
-    //   this.strokeWeight = 15;
-    // } else {
-    //   this.scale = 1;
-    //   this.strokeWeight = 10;
-    // }
+    return mouseclick;
   }
 
   move() {

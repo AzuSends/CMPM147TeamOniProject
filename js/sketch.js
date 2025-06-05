@@ -23,6 +23,7 @@ let fishx;
 let fishy;
 let fishScale;
 let catchSpeed = 1.5;
+let currentFish = null;
 
 //player vars
 let player;
@@ -133,7 +134,9 @@ function draw() {
   drawAcquariumFish();
   // displayfishes();
   mouseHover();
-  fishStatsDisplay();
+  if (currentFish) {
+    fishStatsDisplay();
+  }
 }
 
 function makeFish() {
@@ -154,9 +157,13 @@ function setFishPositions() {
 }
 
 function mouseHover() {
+  let f;
   for (let fish of fishes) {
-    fish.hover();
+    if (fish.hover()) {
+      f = fish;
+    }
   }
+  currentFish = f;
 }
 
 function drawAcquariumFish() {
@@ -230,7 +237,7 @@ function fishStatsDisplay() {
   textSize(36);
   textFont(editu);
   text(
-    "Fish name",
+    currentFish.name,
     textpadding.minw,
     textpadding.minh,
     textpadding.maxw,
@@ -239,14 +246,14 @@ function fishStatsDisplay() {
   textSize(26);
   textFont(BPdots);
   text(
-    "Fish description. It's very long and long and long and lots of fun fish facts can be found here. yes lots of fun fish facts.",
+    currentFish.description,
     textpadding.minw,
     textpadding.minh + 50,
     textpadding.maxw,
     textpadding.maxh
   );
 
-  let numStars = 5;
+  let numStars = currentFish.rarity;
   for (let i = 0; i < numStars; i++) {
     push();
     translate(textpadding.maxw - i * 100, textpadding.minh);
