@@ -74,6 +74,14 @@ function setup() {
     maxHeight: h / 1.5,
     minHeight: h / 6,
   };
+  // https://editor.p5js.org/chanc245_chrissy/sketches/38M4tNTKd
+  // https://www.dafont.com/edit-undo.font
+  // https://www.dafont.com/karmatic-arcade.font
+  editu = loadFont("assets/font/editundo.ttf");
+  karmatic = loadFont("assets/font/ka1.ttf");
+  lightpix = loadFont("assets/font/light_pixel-7.ttf");
+  BPdots = loadFont("assets/font/BPdotsSquareBold.otf");
+
   rod = new RodCast(posX, posY, 100);
   makeFish();
 
@@ -123,8 +131,9 @@ function draw() {
   }
 
   drawAcquariumFish();
-  displayfishes();
+  // displayfishes();
   mouseHover();
+  fishStatsDisplay();
 }
 
 function makeFish() {
@@ -201,6 +210,70 @@ function mouseClicked() {
     rodAnim(200);
   }
   saveGameState();
+}
+
+// animate later with scale for entire box and stars
+function fishStatsDisplay() {
+  const textpadding = {
+    minw: 40,
+    maxw: w - 80,
+    minh: h + 400 + 30,
+    maxh: h + h2 - 20,
+  };
+  push();
+  stroke("#6495ed");
+  fill("white");
+  rect(10, h + 400, w - 20, 190, 20);
+  pop();
+  textAlign(LEFT, TOP);
+  noStroke();
+  textSize(36);
+  textFont(editu);
+  text(
+    "Fish name",
+    textpadding.minw,
+    textpadding.minh,
+    textpadding.maxw,
+    textpadding.maxh
+  );
+  textSize(26);
+  textFont(BPdots);
+  text(
+    "Fish description. It's very long and long and long and lots of fun fish facts can be found here. yes lots of fun fish facts.",
+    textpadding.minw,
+    textpadding.minh + 50,
+    textpadding.maxw,
+    textpadding.maxh
+  );
+
+  let numStars = 5;
+  for (let i = 0; i < numStars; i++) {
+    push();
+    translate(textpadding.maxw - i * 100, textpadding.minh);
+    stroke("orange");
+    strokeWeight(10);
+    fill("yellow");
+    rotate(frameCount / -100.0 + i * 5);
+    scale(1 - i * 0.06);
+    star(0, 0, 30, 70, 5);
+    pop();
+  }
+}
+
+// https://archive.p5js.org/examples/form-star.html
+function star(x, y, radius1, radius2, npoints) {
+  let angle = TWO_PI / npoints;
+  let halfAngle = angle / 2.0;
+  beginShape();
+  for (let a = 0; a < TWO_PI; a += angle) {
+    let sx = x + cos(a) * radius2;
+    let sy = y + sin(a) * radius2;
+    vertex(sx, sy);
+    sx = x + cos(a + halfAngle) * radius1;
+    sy = y + sin(a + halfAngle) * radius1;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
 }
 
 //movement
