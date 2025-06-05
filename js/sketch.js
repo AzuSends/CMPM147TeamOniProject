@@ -44,6 +44,7 @@ let animating = false;
 
 let backgroundScene;
 let aquariumScene;
+let glassOverlay;
 
 class Aquarium {
   constructor(w, h) {
@@ -132,6 +133,7 @@ function draw() {
   }
 
   drawAcquariumFish();
+  image(glassOverlay, 0, h);
   // displayfishes();
   mouseHover();
   if (currentFish) {
@@ -195,6 +197,7 @@ function preload() {
   dockMid = loadImage("./assets/dockMid_x5.png");
   dockMidLeg = loadImage("./assets/dockMidLeg_x5.png");
   dockLeg = loadImage("./assets/dockLeg_x5.png");
+  glassOverlay = loadImage("./assets/overlay.png");
 
   //player img
   //idle = loadImage("./assets/fish_x5.png");
