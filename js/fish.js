@@ -165,7 +165,6 @@ class Fish {
       mouseY > topleft.y &&
       mouseY < topleft.y + this.height * 0.7 * this.scale;
     if (mouseclick) {
-      console.log("hovering over" + this.name);
       this.strokeWeight = 15;
       this.strokeColor = "#FFFF00";
     } else {
