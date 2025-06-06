@@ -350,9 +350,14 @@ function loadGameState() {
   if (savedData) {
     const fishArray = JSON.parse(savedData);
     console.log(`Loaded ${fishArray.length} fish`);
+    try{
     fishArray.forEach((fishData) => {
       fishes.push(new Fish(fishData.seed, fishData.name, fishData.description));
     });
+    }
+    catch(error){
+      fishmagendom();
+    }
     console.log(fishes);
   }
 }
