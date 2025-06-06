@@ -74,10 +74,10 @@ class Fish {
       //console.log(this.description);
     }
     this.rarity = ceil(random(0, 5));
-    this.aggresion = floor(random(0, 765))
-    this.diet = floor(random(0, 2))
-    this.hunger = random()
-    this.feeding = 0
+    this.aggresion = floor(random(0, 765));
+    this.diet = floor(random(0, 2));
+    this.hunger = random();
+    this.feeding = 0;
     this.seed = seed;
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
@@ -169,6 +169,7 @@ class Fish {
       mouseY > topleft.y &&
       mouseY < topleft.y + this.height * 0.7 * this.scale;
     if (mouseclick) {
+      console.log("Fish hovered: " + this.name);
       this.strokeWeight = 15;
       this.strokeColor = "#FFFF00";
     } else {

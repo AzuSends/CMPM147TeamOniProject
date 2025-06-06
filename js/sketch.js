@@ -46,7 +46,6 @@ let backgroundScene;
 let aquariumScene;
 let glassOverlay;
 
-
 function setup() {
   createCanvas(w, h + h2);
   // pixelDensity(5);
@@ -75,13 +74,11 @@ function setup() {
   loadGameState();
   setFishPositions();
   console.log(fishes);
-
 }
 
 function draw() {
-
-  fishSeed += 1
-  aquariumScene.addFish(fishes[floor(random(0, fishes.length))])
+  fishSeed += 1;
+  aquariumScene.addFish(fishes[floor(random(0, fishes.length))]);
   backgroundScene.draw();
   aquariumScene.draw();
 
@@ -131,7 +128,7 @@ function draw() {
 function makeFish() {
   randomSeed(fishSeed);
   let seed = random(0, 10000);
-  console.log(seed);
+  // console.log(seed);
   let fish = new Fish(seed);
   fishes.push(fish);
   fishSeeds.push(fish.seed);
@@ -339,43 +336,24 @@ function displayfishes() {
 }
 
 function saveGameState() {
-  var fishNames = [];
-  var fishDescs = [];
-  var fishSeeds = [];
-  var fishAmount = 0;
-  fishes.forEach((fish) => {
-    //console.log(`fish in fishes: ${fish.name}`);
-    fishNames.push(fish.name);
-    fishDescs.push(fish.description);
-    fishSeeds.push(fish.seed);
-    fishAmount++;
-  });
-  console.log(`amount of fish saved: ${fishAmount}`);
-  const fishData = {
-    fishNames,
-    fishDescs,
-    fishSeeds,
-    fishAmount,
-  };
-  localStorage.setItem(KEY, JSON.stringify(fishData));
+  const fishArray = fishes.map((fish) => ({
+    name: fish.name,
+    description: fish.description,
+    seed: fish.seed,
+  }));
+  console.log(fishArray);
+
+  localStorage.setItem(KEY, JSON.stringify(fishArray));
 }
 function loadGameState() {
-  const gameState = localStorage.getItem(KEY);
-  if (gameState) {
-    var fishData = JSON.parse(gameState);
-    console.log(`amount of fish loaded: ${fishData.fishAmount}`);
-    for (x = 0; x < fishData.fishAmount; x++) {
-      //console.log(`loading fish: ${fishData.fishNames[x]}`);
-      fishes.push(
-        new Fish(
-          fishData.fishSeeds[x],
-          fishData.fishNames[x],
-          fishData.fishDescs[x]
-        )
-      );
-    }
-  } else {
-    return;
+  const savedData = localStorage.getItem(KEY);
+  if (savedData) {
+    const fishArray = JSON.parse(savedData);
+    console.log(`Loaded ${fishArray.length} fish`);
+    fishArray.forEach((fishData) => {
+      fishes.push(new Fish(fishData.seed, fishData.name, fishData.description));
+    });
+    console.log(fishes);
   }
 }
 
