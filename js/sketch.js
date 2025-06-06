@@ -46,22 +46,6 @@ let backgroundScene;
 let aquariumScene;
 let glassOverlay;
 
-class Aquarium {
-  constructor(w, h) {
-    this.width = w;
-    this.height = h;
-    this.aquariumGraphic = createGraphics(this.width, this.height);
-    this.aquarium();
-  }
-
-  draw() {
-    image(this.aquariumGraphic, 0, h);
-  }
-
-  aquarium() {
-    this.aquariumGraphic.background("#191970");
-  }
-}
 
 function setup() {
   createCanvas(w, h + h2);
@@ -69,6 +53,7 @@ function setup() {
   colorMode(HSB);
   backgroundScene = new BackgroundScene(w, h);
   aquariumScene = new Aquarium(w, h2);
+
   //   createSceneObjectsTemp();
   fishParams = {
     maxWidth: w / 1.5,
@@ -85,16 +70,18 @@ function setup() {
   BPdots = loadFont("assets/font/BPdotsSquareBold.otf");
 
   rod = new RodCast(posX, posY, 100);
-  makeFish();
 
   //createButton("clear saveData").mousePressed(() => localStorage.clear());//debugging
   loadGameState();
   setFishPositions();
   console.log(fishes);
+
 }
 
 function draw() {
-  fishSeed += 1;
+
+  fishSeed += 1
+  aquariumScene.addFish(fishes[floor(random(0, fishes.length))])
   backgroundScene.draw();
   aquariumScene.draw();
 
@@ -132,7 +119,7 @@ function draw() {
     rod.updatePos(posX);
   }
 
-  drawAcquariumFish();
+  //drawAcquariumFish();
   image(glassOverlay, 0, h);
   // displayfishes();
   mouseHover();
@@ -187,6 +174,9 @@ function drawAcquariumFish() {
 }
 
 function drawNewestFish(xpos = -500, ypos = -500, scale) {
+  if (fishes.length == 0) {
+    return;
+  }
   let newestIndex = fishes.length - 1;
   let fish = fishes[newestIndex];
   fish.draw({ x: xpos, y: ypos }, scale);
@@ -216,7 +206,7 @@ function mouseClicked() {
     rod.reset();
     castProgress = 0;
     casting = false;
-  } else if (casting == false) {
+  } else if (casting == false && animating == false) {
     rodAnim(200);
   }
   saveGameState();

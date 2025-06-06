@@ -74,6 +74,10 @@ class Fish {
       //console.log(this.description);
     }
     this.rarity = ceil(random(0, 5));
+    this.aggresion = floor(random(0, 765))
+    this.diet = floor(random(0, 2))
+    this.hunger = random()
+    this.feeding = 0
     this.seed = seed;
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
@@ -85,7 +89,7 @@ class Fish {
     let w = this.width / 2;
     let h = this.height / 2;
 
-    this.mainColor = color(random(255), 100, 100);
+    this.mainColor = color(random(255), random(255), random(255));
     this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
     this.strokeColor = "#000000";
     this.strokeWeight = 10;
