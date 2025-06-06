@@ -15,7 +15,6 @@ let rod;
 
 // fish vars
 let fishes = [];
-let fishSeeds = [];
 let fishParams;
 let displayFish = true;
 let casting = false;
@@ -47,8 +46,9 @@ let aquariumScene;
 let glassOverlay;
 
 function setup() {
+  randomSeed(0);
   createCanvas(w, h + h2);
-  // pixelDensity(5);
+  pixelDensity(1);
   colorMode(HSB);
   backgroundScene = new BackgroundScene(w, h);
   aquariumScene = new Aquarium(w, h2);
@@ -126,12 +126,10 @@ function draw() {
 }
 
 function makeFish() {
-  randomSeed(fishSeed);
   let seed = random(0, 10000);
   // console.log(seed);
   let fish = new Fish(seed);
   fishes.push(fish);
-  fishSeeds.push(fish.seed);
   //console.log(fish);
 }
 

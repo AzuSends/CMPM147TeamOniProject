@@ -93,6 +93,10 @@ class Fish {
     this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
     this.strokeColor = "#000000";
     this.strokeWeight = 10;
+    this.bufferw = this.width * 3;
+    this.bufferh = this.height * 3;
+    this.buffer = createGraphics(this.bufferw, this.bufferh);
+    this.hovered = false;
     //ColorSchemes.getShadow(this.mainColor);
 
     this.body = {
@@ -156,6 +160,7 @@ class Fish {
       fin.points = finPoints;
       fin.type = finType;
     }
+    this.drawToBuffer();
   }
 
   hover() {
@@ -170,11 +175,9 @@ class Fish {
       mouseY < topleft.y + this.height * 0.7 * this.scale;
     if (mouseclick) {
       console.log("Fish hovered: " + this.name);
-      this.strokeWeight = 15;
-      this.strokeColor = "#FFFF00";
+      this.hovered = true;
     } else {
-      this.strokeWeight = 10;
-      this.strokeColor = "#000000";
+      this.hovered = false;
     }
     return mouseclick;
   }
@@ -270,18 +273,36 @@ class Fish {
     if (midpoint) this.position = midpoint;
     this.scale = scaleRatio;
 
-    colorMode(HSB);
     push();
     translate(this.position.x, this.position.y);
-    if (flip) {
-      scale(-scaleRatio, scaleRatio);
-    } else {
-      scale(scaleRatio);
+    let flipFactor = flip ? -1 : 1;
+    if (this.hovered) {
+      stroke(this.secondaryColor);
+      strokeWeight(3);
+      fill(this.mainColor);
+      star(
+        0,
+        0,
+        this.width * 0.8 * this.scale,
+        this.height * 0.8 * this.scale,
+        10
+      );
     }
-    strokeWeight(2);
+    scale(flipFactor * this.scale, this.scale);
     // this.debugbox();
-    stroke(this.strokeColor);
-    strokeWeight(this.strokeWeight);
+    imageMode(CENTER);
+    image(this.buffer, 0, 0);
+    pop();
+  }
+
+  drawToBuffer() {
+    this.buffer.colorMode(HSB);
+    this.buffer.push();
+    this.buffer.translate(this.bufferw / 2, this.bufferh / 2);
+    this.buffer.strokeWeight(2);
+    // this.debugbox();
+    this.buffer.stroke(this.strokeColor);
+    this.buffer.strokeWeight(this.strokeWeight);
     for (let fin of Object.values(this.fins)) {
       this.drawFin(fin.type, fin.points);
       // this.drawPoints(fin.points);
@@ -290,7 +311,7 @@ class Fish {
     this.drawEye(this.body.points.eye);
     this.drawFin(this.fins.pectoral.type, this.fins.pectoral.points);
 
-    pop();
+    this.buffer.pop();
   }
 
   drawFin(finType, pts) {
@@ -303,52 +324,52 @@ class Fish {
 
   drawPoints(pts) {
     // stroke(255, 100, 100);
-    fill(100, 100, 100);
+    this.buffer.fill(100, 100, 100);
     for (let [k, v] of Object.entries(pts)) {
-      point(v.x, v.y);
-      text(k, v.x + 5, v.y - 5);
+      this.buffer.point(v.x, v.y);
+      this.buffer.text(k, v.x + 5, v.y - 5);
     }
   }
 
   drawArc(pts) {
     // draws using 2 points and 1 control point
-    fill(this.secondaryColor);
-    beginShape();
-    vertex(pts.p0.x, pts.p0.y);
-    quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
-    endShape(CLOSE);
+    this.buffer.fill(this.secondaryColor);
+    this.buffer.beginShape();
+    this.buffer.vertex(pts.p0.x, pts.p0.y);
+    this.buffer.quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
+    this.buffer.endShape(CLOSE);
   }
 
   drawTriangle(pts) {
     // draws using 3 points and 1 control point
-    fill(this.secondaryColor);
-    beginShape();
-    vertex(pts.p0.x, pts.p0.y);
-    vertex(pts.p1.x, pts.p1.y);
-    vertex(pts.p2.x, pts.p2.y);
-    quadraticVertex(pts.b0.x, pts.b0.y, pts.p0.x, pts.p0.y);
-    endShape(CLOSE);
+    this.buffer.fill(this.secondaryColor);
+    this.buffer.beginShape();
+    this.buffer.vertex(pts.p0.x, pts.p0.y);
+    this.buffer.vertex(pts.p1.x, pts.p1.y);
+    this.buffer.vertex(pts.p2.x, pts.p2.y);
+    this.buffer.quadraticVertex(pts.b0.x, pts.b0.y, pts.p0.x, pts.p0.y);
+    this.buffer.endShape(CLOSE);
   }
 
   drawTrapezoid(pts) {
     // draws using 4 point and 1 control point
-    fill(this.secondaryColor);
-    beginShape();
-    vertex(pts.p0.x, pts.p0.y);
-    vertex(pts.p1.x, pts.p1.y);
-    quadraticVertex(pts.b0.x, pts.b0.y, pts.p2.x, pts.p2.y);
-    vertex(pts.p3.x, pts.p3.y);
-    endShape(CLOSE);
+    this.buffer.fill(this.secondaryColor);
+    this.buffer.beginShape();
+    this.buffer.vertex(pts.p0.x, pts.p0.y);
+    this.buffer.vertex(pts.p1.x, pts.p1.y);
+    this.buffer.quadraticVertex(pts.b0.x, pts.b0.y, pts.p2.x, pts.p2.y);
+    this.buffer.vertex(pts.p3.x, pts.p3.y);
+    this.buffer.endShape(CLOSE);
   }
 
   // draws fish body
   drawBody(pts) {
-    fill(this.mainColor);
-    beginShape();
+    this.buffer.fill(this.mainColor);
+    this.buffer.beginShape();
     // body
-    vertex(pts.mouthtop.x, pts.mouthtop.y);
+    this.buffer.vertex(pts.mouthtop.x, pts.mouthtop.y);
     // top curve to p1
-    bezierVertex(
+    this.buffer.bezierVertex(
       pts.b0a.x,
       pts.b0a.y,
       pts.b0b.x,
@@ -358,7 +379,7 @@ class Fish {
     );
 
     // bottom curve back to mouthbot
-    bezierVertex(
+    this.buffer.bezierVertex(
       pts.b1a.x,
       pts.b1a.y,
       pts.b1b.x,
@@ -367,7 +388,7 @@ class Fish {
       pts.mouthbot.y
     );
 
-    bezierVertex(
+    this.buffer.bezierVertex(
       pts.mouthmid.x,
       pts.mouthmid.y,
       pts.mouthmid.x,
@@ -376,16 +397,16 @@ class Fish {
       pts.mouthtop.y
     );
 
-    endShape();
+    this.buffer.endShape();
   }
 
   drawEye(pt) {
-    push();
-    noStroke();
-    fill("white");
-    ellipse(pt.x, pt.y, this.height / 7);
-    fill("black");
-    ellipse(pt.x, pt.y, this.height / 12);
-    pop();
+    this.buffer.push();
+    this.buffer.noStroke();
+    this.buffer.fill("white");
+    this.buffer.ellipse(pt.x, pt.y, this.height / 7);
+    this.buffer.fill("black");
+    this.buffer.ellipse(pt.x, pt.y, this.height / 12);
+    this.buffer.pop();
   }
 }
