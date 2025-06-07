@@ -131,10 +131,10 @@ class Fish {
       random: ["rainbow", "dots", "freckle"],
       stripe: ["horizontal", "vertical", "grid", "checkerboard"],
       none: [],
+      gradient: ["horizontal", "vertical"],
     };
     // choose random element from Texture Options
     this.bodypattern = random(Object.keys(TextureOptions));
-    this.bodypattern = "noise";
     this.bodytexture = random(TextureOptions[this.bodypattern]);
 
     this.stripeX = floor(random(2, 9));
@@ -511,6 +511,22 @@ class Fish {
         ) {
           closest = this.patternColorA; // checkerboard pattern
         }
+      }
+    } else if (pattern == "gradient") {
+      let threshold;
+      let t;
+      if (texture == "horizontal") {
+        t = map(x, 0, this.pixelbuffer.width, 0, 1);
+        threshold = random(0.4, 0.6);
+      } else if (texture == "vertical") {
+        t = map(y, 0, this.pixelbuffer.height, 0, 1);
+        threshold = random(0.4, 0.6);
+      }
+
+      if (t < threshold) {
+        closest = this.patternColorA;
+      } else if (t < threshold && random() < 0.5) {
+        closest = this.patternColorA;
       }
     }
 
