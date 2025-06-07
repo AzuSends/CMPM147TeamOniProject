@@ -94,6 +94,7 @@ class Fish {
       "Analogous",
       "Triadic",
     ]);
+
     colorMode(HSB);
     if (this.colorScheme == "Split") {
       let colors = ColorSchemes.getSplitComplementary(this.mainColor);
@@ -126,14 +127,20 @@ class Fish {
     this.level = 10; // pixelation level
 
     const TextureOptions = {
-      noise: ["analoghorror", "cow", "freckle"],
+      noise: ["analoghorror", "cow", "freckle", "rainbow"],
       random: ["rainbow", "dots", "freckle"],
       stripe: ["horizontal", "vertical", "grid", "checkerboard"],
       none: [],
     };
     // choose random element from Texture Options
     this.bodypattern = random(Object.keys(TextureOptions));
+    this.bodypattern = "noise";
     this.bodytexture = random(TextureOptions[this.bodypattern]);
+
+    this.stripeX = floor(random(2, 9));
+    this.stripeY = floor(random(2, 9));
+
+    // for testing purposes
 
     this.finpattern = random(Object.keys(TextureOptions));
     this.fintexture = random(TextureOptions[this.finpattern]);
@@ -217,7 +224,9 @@ class Fish {
       mouseY > topleft.y &&
       mouseY < topleft.y + this.height * 0.7 * this.scale;
     if (mouseclick) {
-      console.log("Fish hovered: " + this.name);
+      console.log(
+        "Fish hovered: " + this.name + this.bodytexture + this.colorScheme
+      );
       this.hovered = true;
     } else {
       this.hovered = false;
@@ -410,24 +419,23 @@ class Fish {
             closest = c;
           }
         }
-
-        closest = this.updateColor(
-          closest,
-          this.mainColor,
-          this.bodypattern,
-          this.bodytexture,
-          x,
-          y
-        );
-
-        closest = this.updateColor(
-          closest,
-          this.secondaryColor,
-          this.finpattern,
-          this.fintexture,
-          x,
-          y
-        );
+        if (color(closest) == this.mainColor) {
+          closest = this.updateColor(
+            closest,
+            this.bodypattern,
+            this.bodytexture,
+            x,
+            y
+          );
+        } else if (color(closest) == this.secondaryColor) {
+          closest = this.updateColor(
+            closest,
+            this.finpattern,
+            this.fintexture,
+            x,
+            y
+          );
+        }
 
         this.pixelbuffer.fill(closest);
         this.pixelbuffer.square(floor(x), floor(y), floor(this.level));
@@ -435,74 +443,77 @@ class Fish {
     }
   }
 
-  updateColor(closest, mainColor, pattern, texture, x, y) {
+  updateColor(closest, pattern, texture, x, y) {
     // pattern for body
-    if (color(closest) == mainColor) {
-      if (pattern == "noise") {
-        let c = noise(x * 0.01, y * 0.01);
 
-        if (c < 0.5) {
-          if (texture == "analoghorror") {
-            closest = [
-              this.patternColorA,
-              this.patternColorB,
-              this.patternColorA,
-            ];
-          } else if (texture == "cow") {
-            closest = this.patternColorA;
-          } else if (texture == "freckle") {
-            closest =
-              floor(random(0, 2)) == 0
-                ? this.patternColorA
-                : this.patternColorB;
-          }
-        }
-      } else if (pattern == "random") {
-        if (texture == "rainbow") {
-          let c = random(1);
-          if (c < 0.5) {
-            closest = color(random(255), random(255), random(255)); // random rainbow color
-          }
-        } else if (texture == "dots") {
-          let c = random(1);
-          if (c < 0.1) {
-            closest = this.patternColorA;
-          }
+    if (pattern == "noise") {
+      let c = noise(x * 0.01, y * 0.01);
+
+      if (c < 0.5) {
+        if (texture == "analoghorror") {
+          closest = [
+            this.patternColorA,
+            this.patternColorB,
+            this.patternColorA,
+          ];
+        } else if (texture == "cow") {
+          closest = this.patternColorA;
         } else if (texture == "freckle") {
-          let c = random(1);
-          if (c < 0.5) {
-            closest =
-              floor(random(0, 2)) == 0
-                ? this.patternColorA
-                : this.patternColorB;
-          }
+          closest =
+            floor(random(0, 2)) == 0 ? this.patternColorA : this.patternColorB;
         }
-      } else if (pattern == "stripe") {
-        if (texture == "horizontal") {
-          if (floor(y / this.level) % this.stripeY == 0) {
-            closest = this.patternColorA; // horizontal stripes
-          }
-        } else if (texture == "vertical") {
-          if (floor(x / this.level) % this.stripeX == 0) {
-            closest = this.patternColorA; // vertical stripes
-          }
-        } else if (texture == "grid") {
-          if (
-            floor(x / this.level) % this.stripeX == 0 &&
-            floor(y / this.level) % this.stripeY == 0
-          ) {
-            closest = this.patternColorA; // grid pattern
-          }
-        } else if (texture == "checkerboard") {
-          if (
-            floor(x / this.level) % this.stripeX == 0 ||
-            floor(y / this.level) % this.stripeY == 0
-          ) {
-            closest = this.patternColorA; // checkerboard pattern
-          }
+      }
+      if (texture == "rainbow") {
+        if (c < 0.3) {
+          closest = this.patternColorA;
+        } else if (c < 0.5) {
+          closest = this.patternColorB;
+        }
+      }
+    } else if (pattern == "random") {
+      if (texture == "rainbow") {
+        let c = random(1);
+        if (c < 0.5) {
+          closest = color(random(255), random(255), random(255)); // random rainbow color
+        }
+      } else if (texture == "dots") {
+        let c = random(1);
+        if (c < 0.1) {
+          closest = this.patternColorA;
+        }
+      } else if (texture == "freckle") {
+        let c = random(1);
+        if (c < 0.5) {
+          closest =
+            floor(random(0, 2)) == 0 ? this.patternColorA : this.patternColorB;
+        }
+      }
+    } else if (pattern == "stripe") {
+      if (texture == "horizontal") {
+        if (floor(y / this.level) % this.stripeY == 0) {
+          closest = this.patternColorA; // horizontal stripes
+        }
+      } else if (texture == "vertical") {
+        if (floor(x / this.level) % this.stripeX == 0) {
+          closest = this.patternColorA; // vertical stripes
+        }
+      } else if (texture == "grid") {
+        if (
+          floor(x / this.level) % this.stripeX == 0 &&
+          floor(y / this.level) % this.stripeY == 0
+        ) {
+          closest = this.patternColorA; // grid pattern
+        }
+      } else if (texture == "checkerboard") {
+        if (
+          floor(x / this.level) % this.stripeX == 0 ||
+          floor(y / this.level) % this.stripeY == 0
+        ) {
+          closest = this.patternColorA; // checkerboard pattern
         }
       }
     }
+
     return closest;
   }
 
