@@ -101,36 +101,18 @@ class Fish {
     this.hovered = false;
     this.level = 10; // pixelation level
 
-    this.bodypattern = random(["noise", "random", "stripe", "none"]);
-    this.bodytexture;
-    if (this.bodypattern == "noise") {
-      this.bodytexture = random(["analoghorror", "cow", "freckle"]);
-    } else if (this.bodypattern == "random") {
-      this.bodytexture = random(["rainbow", "dots", "freckle"]); // rainbow should be a color
-    } else if (this.bodypattern == "stripe") {
-      this.bodytexture = random([
-        "horizontal",
-        "vertical",
-        "grid",
-        "checkerboard",
-      ]);
-    }
-    this.finpattern = random(["noise", "random", "stripe", "none"]);
-    this.fintexture;
-    if (this.finpattern == "noise") {
-      this.fintexture = random(["analoghorror", "cow", "freckle"]);
-    } else if (this.finpattern == "random") {
-      this.fintexture = random(["rainbow", "dots", "freckle"]); // rainbow should be a color
-    } else if (this.finpattern == "stripe") {
-      this.fintexture = random([
-        "horizontal",
-        "vertical",
-        "grid",
-        "checkerboard",
-      ]);
-      this.stripeX = random([2, 4, 6, 8]);
-      this.stripeY = random([2, 4, 6, 8]);
-    }
+    const TextureOptions = {
+      noise: ["analoghorror", "cow", "freckle"],
+      random: ["rainbow", "dots", "freckle"],
+      stripe: ["horizontal", "vertical", "grid", "checkerboard"],
+      none: [],
+    };
+    // choose random element from Texture Options
+    this.bodypattern = random(Object.keys(TextureOptions));
+    this.bodytexture = random(TextureOptions[this.bodypattern]);
+
+    this.finpattern = random(Object.keys(TextureOptions));
+    this.fintexture = random(TextureOptions[this.finpattern]);
 
     // this.pattern = "stripe";
     // this.texture = "vertical"; // for testing purposes
