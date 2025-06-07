@@ -132,5 +132,6 @@ class Aquarium {
 
   aquarium() {
     this.aquariumGraphic.background("#191970");
+    this.aquariumGraphic.image(tankBack, 0, 0);
   }
 }

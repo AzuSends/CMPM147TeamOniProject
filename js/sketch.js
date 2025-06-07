@@ -45,6 +45,7 @@ let animating = false;
 let backgroundScene;
 let aquariumScene;
 let glassOverlay;
+let tankBack
 
 function setup() {
   createCanvas(w, h + h2);
@@ -196,6 +197,8 @@ function preload() {
   pAnim3 = loadImage("./assets/fish anim3.png");
   pAnim4 = loadImage("./assets/fish anim4.png");
   player = pAnim1;
+
+  tankBack = loadImage("./assets/background.png");
 }
 
 function mouseClicked() {
