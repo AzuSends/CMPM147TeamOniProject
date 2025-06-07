@@ -74,50 +74,50 @@ class BackgroundScene {
     let scale = 0.09;
     let drift = this.amplitude * sin(frameCount * this.freq);
     for (let y = 0; y < this.height / 2; y += 1) {
-      let rowTemp = []
+      let rowTemp = [];
       let mod = map(y, 0, this.height / 2, 10, 1);
       let squish = scale / mod;
       let ny = squish * y + this.skySeed * 0.5;
       for (let x = 0; x < this.width * 2; x += 1) {
         let nx = squish * (x + drift) + this.skySeed;
-        rowTemp.push(level * noise(nx, ny))
+        rowTemp.push(level * noise(nx, ny));
       }
-      this.noiseMap.push(rowTemp)
+      this.noiseMap.push(rowTemp);
     }
   }
 
   //perlinSky() function from corvuscorae reflected clouds project
   perlinSky() {
-
     strokeWeight(5);
-    let lightBlue = []
-    let darkBlue = []
+    let lightBlue = [];
+    let darkBlue = [];
     let c = 0;
     let drift = this.amplitude * sin(frameCount * this.freq);
-    drift += 20
+    drift += 20;
     for (let y = 0; y < this.height / 2; y += 4) {
       for (let x = 0; x < this.width; x += 4) {
         if (this.noiseMap[y] != null) {
-          c = this.noiseMap[y][x + Math.floor(drift)]
+          c = this.noiseMap[y][x + Math.floor(drift)];
         } else {
-          c = 0
+          c = 0;
         }
 
-
         if (c > 200) {
-          lightBlue.push([x, this.height - y - 1])
+          lightBlue.push([x, this.height - y - 1]);
         } else {
-          darkBlue.push([x, this.height - y - 1])
+          darkBlue.push([x, this.height - y - 1]);
         }
       }
     }
-    stroke("skyblue")
+    noStroke();
+    fill("skyblue");
+    // rectMode(CENTER);
     for (let i = 0; i < lightBlue.length; i++) {
-      point(lightBlue[i][0], lightBlue[i][1]);
+      square(lightBlue[i][0], lightBlue[i][1], 4);
     }
-    stroke(this.SeaColor)
+    fill(this.SeaColor);
     for (let i = 0; i < darkBlue.length; i++) {
-      point(darkBlue[i][0], darkBlue[i][1]);
+      square(darkBlue[i][0], darkBlue[i][1], 4);
     }
   }
 
