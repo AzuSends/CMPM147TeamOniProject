@@ -21,7 +21,7 @@ class Aquarium {
   }
 
   addFish(fish) {
-    if (fish == null) {
+    if (fish == null || this.fish.includes(fish)) {
       return;
     }
     if (this.fish.length < this.maxfish) {
@@ -132,5 +132,6 @@ class Aquarium {
 
   aquarium() {
     this.aquariumGraphic.background("#191970");
+    this.aquariumGraphic.image(tankBack, 0, 0);
   }
 }
