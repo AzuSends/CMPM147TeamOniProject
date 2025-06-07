@@ -12,10 +12,16 @@ class Aquarium {
     this.fishTarget = [];
     this.fishEaten = [];
     this.maxfish = 10;
+
+    this.bubbles = [];
+    this.bubbleLayer = createGraphics(w, h);
+    this.bubbleLayer.noStroke();
   }
 
   draw() {
     image(this.aquariumGraphic, 0, h);
+    this.updateBubbles();
+    this.drawBubbles();
     this.drawFish();
     this.updateFish();
   }
@@ -133,5 +139,55 @@ class Aquarium {
   aquarium() {
     this.aquariumGraphic.background("#191970");
     this.aquariumGraphic.image(tankBack, 0, 0);
+  }
+
+  updateBubbles() {
+  if (random() < 0.05) {
+    let col = floor(random(10));
+    let x = map(col, 0, 9, 50, this.width - 50);
+    let r = random(10, 20);
+    this.bubbles.push(new Bubble(x + random(-10, 10), this.height + r, r));
+  }
+
+  this.bubbleLayer.clear();
+
+  for (let i = this.bubbles.length - 1; i >= 0; i--) {
+    this.bubbles[i].update();
+    this.bubbles[i].display(this.bubbleLayer);
+
+      if (this.bubbles[i].offScreen()) {
+        this.bubbles.splice(i, 1);
+      }
+    }
+  }
+
+  drawBubbles() {
+    image(this.bubbleLayer, 0, h);
+  }
+
+}
+
+//bubble class
+class Bubble {
+  constructor(x, y, r) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+    this.speed = random(1, 2);
+    this.floatOffset = random(TWO_PI);
+  }
+
+  update() {
+    this.y -= this.speed;
+    this.x += sin(frameCount * 0.05 + this.floatOffset) * 0.3;
+  }
+
+  display(pg) {
+    pg.fill(200, 220, 255, 150);
+    pg.ellipse(this.x, this.y, this.r * 2);
+  }
+
+  offScreen() {
+    return this.y + this.r < 0;
   }
 }
