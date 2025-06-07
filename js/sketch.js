@@ -57,8 +57,8 @@ function setup() {
   fishParams = {
     maxWidth: w / 1.5,
     minWidth: w / 6,
-    maxHeight: h / 1.5,
-    minHeight: h / 6,
+    maxHeight: w / 1.5,
+    minHeight: w / 6,
   };
   // https://editor.p5js.org/chanc245_chrissy/sketches/38M4tNTKd
   // https://www.dafont.com/edit-undo.font

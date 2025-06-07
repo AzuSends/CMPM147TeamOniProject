@@ -91,13 +91,48 @@ class Fish {
 
     this.mainColor = color(random(255), random(255), random(255));
     this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
+    this.patternColor = ColorSchemes.getAnalogous(this.mainColor);
     this.strokeColor = "#000000";
     this.strokeWeight = 10;
-    this.bufferw = this.width * 3;
+    this.bufferw = this.width * 4;
     this.bufferh = this.height * 3;
     this.buffer = createGraphics(this.bufferw, this.bufferh);
+    this.pixelbuffer = createGraphics(this.bufferw, this.bufferh);
     this.hovered = false;
-    //ColorSchemes.getShadow(this.mainColor);
+
+    this.bodypattern = random(["noise", "random", "stripe", "none"]);
+    this.bodytexture;
+    if (this.bodypattern == "noise") {
+      this.bodytexture = random(["analoghorror", "cow", "freckle"]);
+    } else if (this.bodypattern == "random") {
+      this.bodytexture = random(["rainbow", "dots", "freckle"]); // rainbow should be a color
+    } else if (this.bodypattern == "stripe") {
+      this.bodytexture = random([
+        "horizontal",
+        "vertical",
+        "grid",
+        "checkerboard",
+      ]);
+    }
+    this.finpattern = random(["noise", "random", "stripe", "none"]);
+    this.fintexture;
+    if (this.finpattern == "noise") {
+      this.fintexture = random(["analoghorror", "cow", "freckle"]);
+    } else if (this.finpattern == "random") {
+      this.fintexture = random(["rainbow", "dots", "freckle"]); // rainbow should be a color
+    } else if (this.finpattern == "stripe") {
+      this.fintexture = random([
+        "horizontal",
+        "vertical",
+        "grid",
+        "checkerboard",
+      ]);
+    }
+
+    // this.pattern = "stripe";
+    // this.texture = "vertical"; // for testing purposes
+
+    console.log(this.bodypattern, this.bodytexture);
 
     this.body = {
       points: {
@@ -116,7 +151,7 @@ class Fish {
         b1a: createVector(random(0, w), h / 2),
         b1b: createVector(random(-w, 0), h),
 
-        eye: createVector(-w * random(0.4, 0.6), random(-h / 4, -h / 8)),
+        eye: createVector(-w * random(0.5, 0.7), random(-h / 4, -h / 8)),
       },
     };
 
@@ -160,7 +195,9 @@ class Fish {
       fin.points = finPoints;
       fin.type = finType;
     }
+    // console.log(this.width, this.height);
     this.drawToBuffer();
+    this.pixelateBuffer();
   }
 
   hover() {
@@ -277,9 +314,9 @@ class Fish {
     translate(this.position.x, this.position.y);
     let flipFactor = flip ? -1 : 1;
     if (this.hovered) {
-      stroke(this.secondaryColor);
+      stroke(this.mainColor);
       strokeWeight(3);
-      fill(this.mainColor);
+      fill(this.secondaryColor);
       star(
         0,
         0,
@@ -291,12 +328,14 @@ class Fish {
     scale(flipFactor * this.scale, this.scale);
     // this.debugbox();
     imageMode(CENTER);
-    image(this.buffer, 0, 0);
+    image(this.pixelbuffer, 0, 0);
     pop();
   }
 
   drawToBuffer() {
     this.buffer.colorMode(HSB);
+    // this.buffer.noSmooth();
+    this.buffer.pixelDensity(2);
     this.buffer.push();
     this.buffer.translate(this.bufferw / 2, this.bufferh / 2);
     this.buffer.strokeWeight(2);
@@ -312,6 +351,131 @@ class Fish {
     this.drawFin(this.fins.pectoral.type, this.fins.pectoral.points);
 
     this.buffer.pop();
+  }
+
+  pixelateBuffer(level = 10) {
+    let imgbuffer = createGraphics(
+      this.pixelbuffer.width,
+      this.pixelbuffer.height
+    );
+    imgbuffer.noSmooth();
+    this.pixelbuffer.pixelDensity(1);
+    this.pixelbuffer.noSmooth();
+    imgbuffer.pixelDensity(1);
+
+    imgbuffer.image(this.buffer, 0, 0, imgbuffer.width, imgbuffer.height);
+    imgbuffer.loadPixels();
+
+    this.pixelbuffer.clear(); // Optional: clear from last frame
+    this.pixelbuffer.noStroke();
+
+    colorMode(RGB, 255);
+
+    const colors = [
+      this.mainColor,
+      this.secondaryColor,
+      color(255, 255, 255), // white
+      color(0, 0, 0), // black
+    ];
+
+    let stripeX = random([2, 4, 6, 8]);
+    let stripeY = random([2, 4, 6, 8]);
+
+    for (let x = 0; x < floor(imgbuffer.width); x += level) {
+      for (let y = 0; y < floor(imgbuffer.height); y += level) {
+        let i = 4 * (x + y * floor(imgbuffer.width));
+
+        let r = imgbuffer.pixels[i];
+        let g = imgbuffer.pixels[i + 1];
+        let b = imgbuffer.pixels[i + 2];
+        let a = imgbuffer.pixels[i + 3];
+
+        let threshold = 20;
+        a = a > threshold ? 255 : 0;
+        if (a === 0) continue;
+
+        // Find closest color
+        let minDist = Infinity;
+        let closest = color(0);
+        for (let c of colors) {
+          let cr = red(c);
+          let cg = green(c);
+          let cb = blue(c);
+          let dist = sq(r - cr) + sq(g - cg) + sq(b - cb); // No sqrt needed
+          if (dist < minDist) {
+            minDist = dist;
+            closest = c;
+          }
+        }
+
+        // pattern for body
+        if (color(closest) == this.mainColor) {
+          if (this.bodypattern == "noise") {
+            let c = noise(x * 0.01, y * 0.01);
+
+            if (c < 0.5) {
+              if (this.bodytexture == "analoghorror") {
+                closest = this.patternColor;
+              } else if (this.bodytexture == "cow") {
+                closest = this.patternColor[0];
+              } else if (this.bodytexture == "freckle") {
+                closest =
+                  floor(random(0, 2)) == 0
+                    ? this.patternColor[0]
+                    : this.patternColor[2];
+              }
+            }
+          } else if (this.bodypattern == "random") {
+            if (this.bodytexture == "rainbow") {
+              let c = random(1);
+              if (c < 0.5) {
+                closest = color(random(255), random(255), random(255)); // random rainbow color
+              }
+            } else if (this.bodytexture == "dots") {
+              let c = random(1);
+              if (c < 0.1) {
+                closest = this.patternColor[0];
+              }
+            } else if (this.bodytexture == "freckle") {
+              let c = random(1);
+              if (c < 0.5) {
+                closest =
+                  floor(random(0, 2)) == 0
+                    ? this.patternColor[0]
+                    : this.patternColor[2];
+              }
+            }
+          } else if (this.bodypattern == "stripe") {
+            if (this.bodytexture == "horizontal") {
+              if (floor(y / level) % stripeY == 0) {
+                closest = this.patternColor[0]; // horizontal stripes
+              }
+            } else if (this.bodytexture == "vertical") {
+              if (floor(x / level) % stripeX == 0) {
+                closest = this.patternColor[0]; // vertical stripes
+              }
+            } else if (this.bodytexture == "grid") {
+              if (
+                floor(x / level) % stripeX == 0 &&
+                floor(y / level) % stripeY == 0
+              ) {
+                closest = this.patternColor[0]; // grid pattern
+              }
+            } else if (this.bodytexture == "checkerboard") {
+              if (
+                floor(x / level) % stripeX == 0 ||
+                floor(y / level) % stripeY == 0
+              ) {
+                closest = this.patternColor[0]; // checkerboard pattern
+              }
+            }
+          }
+        }
+
+        this.pixelbuffer.fill(closest);
+        this.pixelbuffer.square(floor(x), floor(y), floor(level));
+      }
+    }
   }
 
   drawFin(finType, pts) {
@@ -404,9 +568,10 @@ class Fish {
     this.buffer.push();
     this.buffer.noStroke();
     this.buffer.fill("white");
-    this.buffer.ellipse(pt.x, pt.y, this.height / 7);
+    this.buffer.rectMode(CENTER);
+    this.buffer.circle(pt.x, pt.y, this.height / 6);
     this.buffer.fill("black");
-    this.buffer.ellipse(pt.x, pt.y, this.height / 12);
+    this.buffer.square(pt.x, pt.y, this.height / 15);
     this.buffer.pop();
   }
 }
