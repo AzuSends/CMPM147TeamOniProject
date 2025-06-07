@@ -15,7 +15,6 @@ let rod;
 
 // fish vars
 let fishes = [];
-let fishSeeds = [];
 let fishParams;
 let displayFish = true;
 let casting = false;
@@ -48,8 +47,9 @@ let glassOverlay;
 let tankBack
 
 function setup() {
+  randomSeed(0);
   createCanvas(w, h + h2);
-  // pixelDensity(5);
+  pixelDensity(1);
   colorMode(HSB);
   backgroundScene = new BackgroundScene(w, h);
   aquariumScene = new Aquarium(w, h2);
@@ -58,8 +58,8 @@ function setup() {
   fishParams = {
     maxWidth: w / 1.5,
     minWidth: w / 6,
-    maxHeight: h / 1.5,
-    minHeight: h / 6,
+    maxHeight: w / 1.5,
+    minHeight: w / 6,
   };
   // https://editor.p5js.org/chanc245_chrissy/sketches/38M4tNTKd
   // https://www.dafont.com/edit-undo.font
@@ -128,12 +128,10 @@ function draw() {
 }
 
 function makeFish() {
-  randomSeed(fishSeed);
   let seed = random(0, 10000);
   // console.log(seed);
   let fish = new Fish(seed);
   fishes.push(fish);
-  fishSeeds.push(fish.seed);
   //console.log(fish);
 }
 

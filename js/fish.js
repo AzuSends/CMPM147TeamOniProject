@@ -16,7 +16,6 @@ const ColorSchemes = {
         saturation(baseColor),
         brightness(baseColor)
       ), // -30 deg
-      baseColor,
       color(
         (hue(baseColor) + 30) % 360,
         saturation(baseColor),
@@ -26,7 +25,6 @@ const ColorSchemes = {
   },
   getSplitComplementary(baseColor) {
     return [
-      baseColor,
       color(
         (hue(baseColor) + 150) % 360,
         saturation(baseColor),
@@ -41,7 +39,6 @@ const ColorSchemes = {
   },
   getTriadic(baseColor) {
     return [
-      baseColor,
       color(
         (hue(baseColor) + 120) % 360,
         saturation(baseColor),
@@ -90,10 +87,65 @@ class Fish {
     let h = this.height / 2;
 
     this.mainColor = color(random(255), random(255), random(255));
-    this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
+
+    this.colorScheme = random([
+      "Split",
+      "Complementary",
+      "Analogous",
+      "Triadic",
+    ]);
+
+    colorMode(HSB);
+    if (this.colorScheme == "Split") {
+      let colors = ColorSchemes.getSplitComplementary(this.mainColor);
+      this.secondaryColor = colors[0];
+      this.patternColorA = colors[1];
+    } else if (this.colorScheme == "Analogous") {
+      let colors = ColorSchemes.getAnalogous(this.mainColor);
+      this.secondaryColor = colors[0];
+      this.patternColorA = colors[1];
+    } else if (this.colorScheme == "Triadic") {
+      let colors = ColorSchemes.getTriadic(this.mainColor);
+      this.secondaryColor = colors[0];
+      this.patternColorA = colors[1];
+    } else {
+      this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
+      this.patternColorA = ColorSchemes.getShadow(this.mainColor, 0.3);
+    }
+    this.patternColorB = random([
+      ColorSchemes.getAnalogous(this.patternColorA)[1],
+      ColorSchemes.getShadow(this.patternColorA),
+    ]);
+
     this.strokeColor = "#000000";
     this.strokeWeight = 10;
-    //ColorSchemes.getShadow(this.mainColor);
+    this.bufferw = this.width * 4;
+    this.bufferh = this.height * 3;
+    this.buffer = createGraphics(this.bufferw, this.bufferh);
+    this.pixelbuffer = createGraphics(this.bufferw, this.bufferh);
+    this.hovered = false;
+    this.level = 10; // pixelation level
+
+    const TextureOptions = {
+      noise: ["analoghorror", "cow", "freckle", "rainbow"],
+      random: ["rainbow", "dots", "freckle"],
+      stripe: ["horizontal", "vertical", "grid", "checkerboard"],
+      none: [],
+      gradient: ["horizontal", "vertical"],
+    };
+    // choose random element from Texture Options
+    this.bodypattern = random(Object.keys(TextureOptions));
+    this.bodytexture = random(TextureOptions[this.bodypattern]);
+
+    this.stripeX = floor(random(2, 9));
+    this.stripeY = floor(random(2, 9));
+
+    // for testing purposes
+
+    this.finpattern = random(Object.keys(TextureOptions));
+    this.fintexture = random(TextureOptions[this.finpattern]);
+
+    console.log(this.bodypattern, this.bodytexture, this.colorScheme);
 
     this.body = {
       points: {
@@ -112,7 +164,7 @@ class Fish {
         b1a: createVector(random(0, w), h / 2),
         b1b: createVector(random(-w, 0), h),
 
-        eye: createVector(-w * random(0.4, 0.6), random(-h / 4, -h / 8)),
+        eye: createVector(-w * random(0.5, 0.7), random(-h / 4, -h / 8)),
       },
     };
 
@@ -156,6 +208,9 @@ class Fish {
       fin.points = finPoints;
       fin.type = finType;
     }
+    // console.log(this.width, this.height);
+    this.drawToBuffer();
+    this.pixelateBuffer();
   }
 
   hover() {
@@ -169,12 +224,12 @@ class Fish {
       mouseY > topleft.y &&
       mouseY < topleft.y + this.height * 0.7 * this.scale;
     if (mouseclick) {
-      console.log("Fish hovered: " + this.name);
-      this.strokeWeight = 15;
-      this.strokeColor = "#FFFF00";
+      console.log(
+        "Fish hovered: " + this.name + this.bodytexture + this.colorScheme
+      );
+      this.hovered = true;
     } else {
-      this.strokeWeight = 10;
-      this.strokeColor = "#000000";
+      this.hovered = false;
     }
     return mouseclick;
   }
@@ -270,18 +325,38 @@ class Fish {
     if (midpoint) this.position = midpoint;
     this.scale = scaleRatio;
 
-    colorMode(HSB);
     push();
     translate(this.position.x, this.position.y);
-    if (flip) {
-      scale(-scaleRatio, scaleRatio);
-    } else {
-      scale(scaleRatio);
+    let flipFactor = flip ? -1 : 1;
+    if (this.hovered) {
+      stroke(this.mainColor);
+      strokeWeight(3);
+      fill(this.secondaryColor);
+      star(
+        0,
+        0,
+        this.width * 0.8 * this.scale,
+        this.height * 0.8 * this.scale,
+        10
+      );
     }
-    strokeWeight(2);
+    scale(flipFactor * this.scale, this.scale);
     // this.debugbox();
-    stroke(this.strokeColor);
-    strokeWeight(this.strokeWeight);
+    imageMode(CENTER);
+    image(this.pixelbuffer, 0, 0);
+    pop();
+  }
+
+  drawToBuffer() {
+    this.buffer.colorMode(HSB);
+    // this.buffer.noSmooth();
+    this.buffer.pixelDensity(2);
+    this.buffer.push();
+    this.buffer.translate(this.bufferw / 2, this.bufferh / 2);
+    this.buffer.strokeWeight(2);
+    // this.debugbox();
+    this.buffer.stroke(this.strokeColor);
+    this.buffer.strokeWeight(this.strokeWeight);
     for (let fin of Object.values(this.fins)) {
       this.drawFin(fin.type, fin.points);
       // this.drawPoints(fin.points);
@@ -290,7 +365,172 @@ class Fish {
     this.drawEye(this.body.points.eye);
     this.drawFin(this.fins.pectoral.type, this.fins.pectoral.points);
 
-    pop();
+    this.buffer.pop();
+  }
+
+  pixelateBuffer() {
+    let imgbuffer = createGraphics(
+      this.pixelbuffer.width,
+      this.pixelbuffer.height
+    );
+    imgbuffer.noSmooth();
+    this.pixelbuffer.pixelDensity(1);
+    this.pixelbuffer.noSmooth();
+    imgbuffer.pixelDensity(1);
+
+    imgbuffer.image(this.buffer, 0, 0, imgbuffer.width, imgbuffer.height);
+    imgbuffer.loadPixels();
+
+    this.pixelbuffer.clear(); // Optional: clear from last frame
+    this.pixelbuffer.noStroke();
+
+    colorMode(RGB, 255);
+
+    const colors = [
+      this.mainColor,
+      this.secondaryColor,
+      color(255, 255, 255), // white
+      color(0, 0, 0), // black
+    ];
+
+    for (let x = 0; x < floor(imgbuffer.width); x += this.level) {
+      for (let y = 0; y < floor(imgbuffer.height); y += this.level) {
+        let i = 4 * (x + y * floor(imgbuffer.width));
+
+        let r = imgbuffer.pixels[i];
+        let g = imgbuffer.pixels[i + 1];
+        let b = imgbuffer.pixels[i + 2];
+        let a = imgbuffer.pixels[i + 3];
+
+        let threshold = 20;
+        a = a > threshold ? 255 : 0;
+        if (a === 0) continue;
+
+        // Find closest color
+        let minDist = Infinity;
+        let closest = color(0);
+        for (let c of colors) {
+          let cr = red(c);
+          let cg = green(c);
+          let cb = blue(c);
+          let dist = sq(r - cr) + sq(g - cg) + sq(b - cb); // No sqrt needed
+          if (dist < minDist) {
+            minDist = dist;
+            closest = c;
+          }
+        }
+        if (color(closest) == this.mainColor) {
+          closest = this.updateColor(
+            closest,
+            this.bodypattern,
+            this.bodytexture,
+            x,
+            y
+          );
+        } else if (color(closest) == this.secondaryColor) {
+          closest = this.updateColor(
+            closest,
+            this.finpattern,
+            this.fintexture,
+            x,
+            y
+          );
+        }
+
+        this.pixelbuffer.fill(closest);
+        this.pixelbuffer.square(floor(x), floor(y), floor(this.level));
+      }
+    }
+  }
+
+  updateColor(closest, pattern, texture, x, y) {
+    // pattern for body
+
+    if (pattern == "noise") {
+      let c = noise(x * 0.01, y * 0.01);
+
+      if (c < 0.5) {
+        if (texture == "analoghorror") {
+          closest = [
+            this.patternColorA,
+            this.patternColorB,
+            this.patternColorA,
+          ];
+        } else if (texture == "cow") {
+          closest = this.patternColorA;
+        } else if (texture == "freckle") {
+          closest =
+            floor(random(0, 2)) == 0 ? this.patternColorA : this.patternColorB;
+        }
+      }
+      if (texture == "rainbow") {
+        if (c < 0.3) {
+          closest = this.patternColorA;
+        } else if (c < 0.5) {
+          closest = this.patternColorB;
+        }
+      }
+    } else if (pattern == "random") {
+      if (texture == "rainbow") {
+        let c = random(1);
+        if (c < 0.5) {
+          closest = color(random(255), random(255), random(255)); // random rainbow color
+        }
+      } else if (texture == "dots") {
+        let c = random(1);
+        if (c < 0.1) {
+          closest = this.patternColorA;
+        }
+      } else if (texture == "freckle") {
+        let c = random(1);
+        if (c < 0.5) {
+          closest =
+            floor(random(0, 2)) == 0 ? this.patternColorA : this.patternColorB;
+        }
+      }
+    } else if (pattern == "stripe") {
+      if (texture == "horizontal") {
+        if (floor(y / this.level) % this.stripeY == 0) {
+          closest = this.patternColorA; // horizontal stripes
+        }
+      } else if (texture == "vertical") {
+        if (floor(x / this.level) % this.stripeX == 0) {
+          closest = this.patternColorA; // vertical stripes
+        }
+      } else if (texture == "grid") {
+        if (
+          floor(x / this.level) % this.stripeX == 0 &&
+          floor(y / this.level) % this.stripeY == 0
+        ) {
+          closest = this.patternColorA; // grid pattern
+        }
+      } else if (texture == "checkerboard") {
+        if (
+          floor(x / this.level) % this.stripeX == 0 ||
+          floor(y / this.level) % this.stripeY == 0
+        ) {
+          closest = this.patternColorA; // checkerboard pattern
+        }
+      }
+    } else if (pattern == "gradient") {
+      let threshold;
+      let t;
+      if (texture == "horizontal") {
+        t = map(x, 0, this.pixelbuffer.width, 0, 1);
+        threshold = random(0.4, 0.6);
+      } else if (texture == "vertical") {
+        t = map(y, 0, this.pixelbuffer.height, 0, 1);
+        threshold = random(0.4, 0.6);
+      }
+
+      if (t < threshold) {
+        closest = this.patternColorA;
+      } else if (t < threshold && random() < 0.5) {
+        closest = this.patternColorA;
+      }
+    }
+
+    return closest;
   }
 
   drawFin(finType, pts) {
@@ -303,52 +543,52 @@ class Fish {
 
   drawPoints(pts) {
     // stroke(255, 100, 100);
-    fill(100, 100, 100);
+    this.buffer.fill(100, 100, 100);
     for (let [k, v] of Object.entries(pts)) {
-      point(v.x, v.y);
-      text(k, v.x + 5, v.y - 5);
+      this.buffer.point(v.x, v.y);
+      this.buffer.text(k, v.x + 5, v.y - 5);
     }
   }
 
   drawArc(pts) {
     // draws using 2 points and 1 control point
-    fill(this.secondaryColor);
-    beginShape();
-    vertex(pts.p0.x, pts.p0.y);
-    quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
-    endShape(CLOSE);
+    this.buffer.fill(this.secondaryColor);
+    this.buffer.beginShape();
+    this.buffer.vertex(pts.p0.x, pts.p0.y);
+    this.buffer.quadraticVertex(pts.b0.x, pts.b0.y, pts.p1.x, pts.p1.y);
+    this.buffer.endShape(CLOSE);
   }
 
   drawTriangle(pts) {
     // draws using 3 points and 1 control point
-    fill(this.secondaryColor);
-    beginShape();
-    vertex(pts.p0.x, pts.p0.y);
-    vertex(pts.p1.x, pts.p1.y);
-    vertex(pts.p2.x, pts.p2.y);
-    quadraticVertex(pts.b0.x, pts.b0.y, pts.p0.x, pts.p0.y);
-    endShape(CLOSE);
+    this.buffer.fill(this.secondaryColor);
+    this.buffer.beginShape();
+    this.buffer.vertex(pts.p0.x, pts.p0.y);
+    this.buffer.vertex(pts.p1.x, pts.p1.y);
+    this.buffer.vertex(pts.p2.x, pts.p2.y);
+    this.buffer.quadraticVertex(pts.b0.x, pts.b0.y, pts.p0.x, pts.p0.y);
+    this.buffer.endShape(CLOSE);
   }
 
   drawTrapezoid(pts) {
     // draws using 4 point and 1 control point
-    fill(this.secondaryColor);
-    beginShape();
-    vertex(pts.p0.x, pts.p0.y);
-    vertex(pts.p1.x, pts.p1.y);
-    quadraticVertex(pts.b0.x, pts.b0.y, pts.p2.x, pts.p2.y);
-    vertex(pts.p3.x, pts.p3.y);
-    endShape(CLOSE);
+    this.buffer.fill(this.secondaryColor);
+    this.buffer.beginShape();
+    this.buffer.vertex(pts.p0.x, pts.p0.y);
+    this.buffer.vertex(pts.p1.x, pts.p1.y);
+    this.buffer.quadraticVertex(pts.b0.x, pts.b0.y, pts.p2.x, pts.p2.y);
+    this.buffer.vertex(pts.p3.x, pts.p3.y);
+    this.buffer.endShape(CLOSE);
   }
 
   // draws fish body
   drawBody(pts) {
-    fill(this.mainColor);
-    beginShape();
+    this.buffer.fill(this.mainColor);
+    this.buffer.beginShape();
     // body
-    vertex(pts.mouthtop.x, pts.mouthtop.y);
+    this.buffer.vertex(pts.mouthtop.x, pts.mouthtop.y);
     // top curve to p1
-    bezierVertex(
+    this.buffer.bezierVertex(
       pts.b0a.x,
       pts.b0a.y,
       pts.b0b.x,
@@ -358,7 +598,7 @@ class Fish {
     );
 
     // bottom curve back to mouthbot
-    bezierVertex(
+    this.buffer.bezierVertex(
       pts.b1a.x,
       pts.b1a.y,
       pts.b1b.x,
@@ -367,7 +607,7 @@ class Fish {
       pts.mouthbot.y
     );
 
-    bezierVertex(
+    this.buffer.bezierVertex(
       pts.mouthmid.x,
       pts.mouthmid.y,
       pts.mouthmid.x,
@@ -376,16 +616,17 @@ class Fish {
       pts.mouthtop.y
     );
 
-    endShape();
+    this.buffer.endShape();
   }
 
   drawEye(pt) {
-    push();
-    noStroke();
-    fill("white");
-    ellipse(pt.x, pt.y, this.height / 7);
-    fill("black");
-    ellipse(pt.x, pt.y, this.height / 12);
-    pop();
+    this.buffer.push();
+    this.buffer.noStroke();
+    this.buffer.fill("white");
+    this.buffer.rectMode(CENTER);
+    this.buffer.circle(pt.x, pt.y, this.height / 6);
+    this.buffer.fill("black");
+    this.buffer.square(pt.x, pt.y, this.height / 15);
+    this.buffer.pop();
   }
 }
