@@ -21,7 +21,7 @@ class Aquarium {
   }
 
   addFish(fish) {
-    if (fish == null) {
+    if (fish == null || this.fish.includes(fish)) {
       return;
     }
     if (this.fish.length < this.maxfish) {

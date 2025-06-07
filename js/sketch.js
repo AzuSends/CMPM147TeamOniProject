@@ -78,6 +78,7 @@ function setup() {
 
 function draw() {
   fishSeed += 1;
+  
   aquariumScene.addFish(fishes[floor(random(0, fishes.length))]);
   backgroundScene.draw();
   aquariumScene.draw();
