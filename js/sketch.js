@@ -44,7 +44,7 @@ let animating = false;
 let backgroundScene;
 let aquariumScene;
 let glassOverlay;
-let tankBack
+let tankBack;
 
 function setup() {
   randomSeed(0);
@@ -57,7 +57,7 @@ function setup() {
   //   createSceneObjectsTemp();
   fishParams = {
     maxWidth: w / 1.5,
-    minWidth: w / 6,
+    minWidth: w / 4,
     maxHeight: w / 1.5,
     minHeight: w / 6,
   };
@@ -79,7 +79,7 @@ function setup() {
 
 function draw() {
   fishSeed += 1;
-  
+
   aquariumScene.addFish(fishes[floor(random(0, fishes.length))]);
   backgroundScene.draw();
   aquariumScene.draw();
@@ -352,12 +352,13 @@ function loadGameState() {
   if (savedData) {
     const fishArray = JSON.parse(savedData);
     console.log(`Loaded ${fishArray.length} fish`);
-    try{
-    fishArray.forEach((fishData) => {
-      fishes.push(new Fish(fishData.seed, fishData.name, fishData.description));
-    });
-    }
-    catch(error){
+    try {
+      fishArray.forEach((fishData) => {
+        fishes.push(
+          new Fish(fishData.seed, fishData.name, fishData.description)
+        );
+      });
+    } catch (error) {
       fishmagendom();
     }
     console.log(fishes);
