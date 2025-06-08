@@ -19,7 +19,7 @@ class Aquarium {
   }
 
   draw() {
-    image(this.aquariumGraphic, 0, h);
+    image(this.aquariumGraphic, 0, h + 70);
     this.updateBubbles();
     this.drawBubbles();
     this.drawFish();
@@ -137,8 +137,8 @@ class Aquarium {
   removeFish() {}
 
   aquarium() {
-    this.aquariumGraphic.background("#191970");
-    this.aquariumGraphic.image(tankBack, 0, 0);
+    this.aquariumGraphic.background("#3895ff");
+    this.aquariumGraphic.image(tankBack, 0, 70);
   }
 
   updateBubbles() {
@@ -162,7 +162,7 @@ class Aquarium {
   }
 
   drawBubbles() {
-    image(this.bubbleLayer, 0, h);
+    image(this.bubbleLayer, 0, h + 70);
   }
 
 }

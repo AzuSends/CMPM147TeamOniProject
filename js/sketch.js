@@ -48,7 +48,7 @@ let tankBack;
 
 function setup() {
   randomSeed(0);
-  createCanvas(w, h + h2);
+  createCanvas(w, h + h2 + 70);
   pixelDensity(1);
   colorMode(HSB);
   backgroundScene = new BackgroundScene(w, h);
@@ -119,7 +119,7 @@ function draw() {
   }
 
   //drawAcquariumFish();
-  image(glassOverlay, 0, h);
+  image(glassOverlay, 0, h + 20);
   // displayfishes();
   mouseHover();
   if (currentFish) {
@@ -184,7 +184,7 @@ function preload() {
   dockMid = loadImage("./assets/dockMid_x5.png");
   dockMidLeg = loadImage("./assets/dockMidLeg_x5.png");
   dockLeg = loadImage("./assets/dockLeg_x5.png");
-  glassOverlay = loadImage("./assets/overlay.png");
+  glassOverlay = loadImage("./assets/largerOverlay.png");
 
   //player img
   //idle = loadImage("./assets/fish_x5.png");
