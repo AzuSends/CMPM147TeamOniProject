@@ -68,12 +68,12 @@ h2 {
 
 @font-face {
   font-family: "editu";
-  src: url(/assets/font/editundo.ttf);
+  src: url(./assets/font/editundo.ttf);
 }
 
 @font-face {
   font-family: "BPdots";
-  src: url(/assets/font/BPdotsSquareBold.otf);
+  src: url(./assets/font/BPdotsSquareBold.otf);
 }
 
 .fish-text {
