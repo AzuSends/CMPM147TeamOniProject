@@ -10,6 +10,11 @@ body {
   padding: 20px;
 }
 
+main {
+  display: flex;
+  gap: 1rem;
+}
+
 .container {
   background: white;
   padding: 20px;
@@ -29,10 +34,11 @@ h2 {
 }
 
 .right-column {
-  position: fixed;
-  top: 0;
-  width: 35vw;
-  height: 100vh;
+  width: auto;
+  min-width: 400px;
+  max-width: 1000px;
+  height: auto;
+  max-height: 1270px;
   background-color: whitesmoke;
   padding: 10px;
   overflow: auto;

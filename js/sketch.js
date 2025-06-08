@@ -47,9 +47,28 @@ let glassOverlay;
 let tankBack;
 let tankFilter;
 
+let container;
+
 function setup() {
   randomSeed(0);
-  createCanvas(w, h + h2 + 70);
+  // const c = createCanvas(w, h + h2 + 70);
+  const c = createCanvas(w, h + h2 + 70);
+
+  // Option 1: Append to canvas's parent
+  let parent = c.parent(); // Get parent container of canvas
+
+  // Create a div element from string (safe way)
+  container = document.createElement("div");
+  container.innerHTML = `
+    <div class="right-column">
+      <div id="facts-container">
+        <h3 class="fish">Fish:</h3>
+        <div id="fish-list"></div>
+      </div>
+    </div>
+  `;
+  parent.appendChild(container);
+
   pixelDensity(1);
   colorMode(HSB);
   backgroundScene = new BackgroundScene(w, h);
@@ -328,7 +347,8 @@ function rodAnim(waitTime) {
 
 function displayfishes() {
   //just to show off the fish stuff, remove this and the div in index when aquarium implemented?
-  fishContainer.innerHTML = "";
+  let fishlist = container.querySelector("#fish-list");
+  fishlist.innerHTML = "";
   fishes.forEach((fish) => {
     const messageDiv = document.createElement("div");
     messageDiv.className = "fish-display";
@@ -350,7 +370,7 @@ function displayfishes() {
       messageDiv.appendChild(img);
     }
 
-    fishContainer.appendChild(messageDiv);
+    fishlist.appendChild(messageDiv);
   });
 }
 
