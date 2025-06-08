@@ -165,6 +165,7 @@ class Fish {
       "Complementary",
       "Analogous",
       "Triadic",
+      "Monochrome",
     ]);
 
     colorMode(HSB);
@@ -180,9 +181,17 @@ class Fish {
       let colors = ColorSchemes.getTriadic(this.mainColor);
       this.secondaryColor = colors[0];
       this.patternColorA = colors[1];
-    } else {
+    } else if (this.colorScheme == "Complementary") {
       this.secondaryColor = ColorSchemes.getComplementary(this.mainColor);
       this.patternColorA = ColorSchemes.getShadow(this.mainColor, 0.3);
+    } else if (this.colorScheme == "Monochrome") {
+      this.secondaryColor = this.mainColor;
+      this.patternColorA = random([
+        ColorSchemes.getAnalogous(this.mainColor)[0],
+        ColorSchemes.getTriadic(this.mainColor)[0],
+        ColorSchemes.getComplementary(this.mainColor),
+        ColorSchemes.getSplitComplementary(this.mainColor)[0],
+      ]);
     }
     this.patternColorB = random([
       ColorSchemes.getAnalogous(this.patternColorA)[1],
