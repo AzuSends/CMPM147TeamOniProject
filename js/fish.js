@@ -209,14 +209,14 @@ class Fish {
 
     this.rarity = calculateRarity(this);
 
-    console.log(
-      this.bodypattern,
-      this.bodytexture,
-      this.finpattern,
-      this.fintexture,
-      this.colorScheme,
-      this.rarity
-    );
+    // console.log(
+    //   this.bodypattern,
+    //   this.bodytexture,
+    //   this.finpattern,
+    //   this.fintexture,
+    //   this.colorScheme,
+    //   this.rarity
+    // );
 
     this.body = {
       points: {

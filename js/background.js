@@ -19,9 +19,24 @@ class BackgroundScene {
     this.MountainColor3 = "#C4A9A2";
     this.MountainColor4 = "#98888B";
     this.MountainStroke = "#5C4033";
+    let colors = [
+      this.MountainColor,
+      this.MountainColor1,
+      this.MountainColor2,
+      this.MountainColor3,
+      this.MountainColor4,
+      this.MountainStroke,
+    ];
     this.SeaColor = "#6495ed";
     this.mountainGraphics = createGraphics(this.width, this.height);
+    this.pixelMountainGraphics = createGraphics(this.width, this.height);
     this.drawMountains();
+    pixelateBuffer(
+      this.mountainGraphics,
+      this.pixelMountainGraphics,
+      colors,
+      5
+    );
     this.cloudGraphic = createGraphics(this.width, this.height);
     this.cloudOffsetX = 0;
     this.perlinNoise();
@@ -29,13 +44,14 @@ class BackgroundScene {
 
   draw() {
     background(this.BackgroundColor);
-    image(this.mountainGraphics, 0, 0);
+    image(this.pixelMountainGraphics, 0, 0);
     this.perlinSky();
     this.dock();
     this.cloudAnim();
   }
 
   drawMountains() {
+    randomSeed();
     this.mountainGraphics.push();
     this.mountainGraphics.stroke(this.MountainStroke);
     this.drawMountain(this.MountainColor4, 90);
@@ -211,4 +227,77 @@ class BackgroundScene {
     }
     image(this.cloudGraphic, 0, 0);
   }
+}
+
+function pixelateBuffer(buffer, pixelbuffer, colors, level) {
+  let imgbuffer = createGraphics(pixelbuffer.width, pixelbuffer.height);
+  imgbuffer.noSmooth();
+  pixelbuffer.pixelDensity(1);
+  pixelbuffer.noSmooth();
+  imgbuffer.pixelDensity(1);
+
+  imgbuffer.image(buffer, 0, 0, imgbuffer.width, imgbuffer.height);
+  imgbuffer.loadPixels();
+
+  pixelbuffer.clear(); // Optional: clear from last frame
+  pixelbuffer.noStroke();
+
+  colorMode(RGB, 255);
+
+  for (let x = 0; x < floor(imgbuffer.width); x += level) {
+    for (let y = 0; y < floor(imgbuffer.height); y += level) {
+      let i = 4 * (x + y * floor(imgbuffer.width));
+
+      let r = imgbuffer.pixels[i];
+      let g = imgbuffer.pixels[i + 1];
+      let b = imgbuffer.pixels[i + 2];
+      let a = imgbuffer.pixels[i + 3];
+
+      let threshold = 20;
+      a = a > threshold ? 255 : 0;
+      if (a === 0) continue;
+
+      // Find closest color
+      let minDist = Infinity;
+      let closest = color(0);
+      for (let c of colors) {
+        let cr = red(c);
+        let cg = green(c);
+        let cb = blue(c);
+        let dist = sq(r - cr) + sq(g - cg) + sq(b - cb); // No sqrt needed
+        if (dist < minDist) {
+          minDist = dist;
+          closest = c;
+        }
+      }
+
+      if (closest == colors[3] || closest == colors[2]) {
+        let gradienthres;
+        let t;
+        t = map(y, 0, pixelbuffer.height, 0, 1);
+        gradienthres = random(0.3, 0.6);
+        if (t > gradienthres) {
+          closest = colors[0];
+        } else if (t > gradienthres && random() > 0.3) {
+          closest = colors[colors.length - 1];
+        }
+      }
+
+      pixelbuffer.fill(closest);
+      pixelbuffer.square(floor(x), floor(y), floor(level));
+    }
+  }
+}
+
+function updateColor(closest, x, y) {
+  let threshold;
+  let t;
+  t = map(y, 0, this.pixelbuffer.width, 0, 1);
+  threshold = random(0.4, 0.6);
+  if (t < threshold) {
+    closest = this.patternColorA;
+  } else if (t < threshold && random() < 0.5) {
+    closest = this.patternColorA;
+  }
+  return closest;
 }
