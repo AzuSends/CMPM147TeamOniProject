@@ -45,6 +45,7 @@ let backgroundScene;
 let aquariumScene;
 let glassOverlay;
 let tankBack;
+let tankFilter;
 
 function setup() {
   randomSeed(0);
@@ -197,6 +198,7 @@ function preload() {
   player = pAnim1;
 
   tankBack = loadImage("./assets/background.png");
+  tankFilter = loadImage("./assets/filter.png");
 }
 
 function mouseClicked() {

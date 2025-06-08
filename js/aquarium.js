@@ -138,7 +138,8 @@ class Aquarium {
 
   aquarium() {
     this.aquariumGraphic.background("#3895ff");
-    this.aquariumGraphic.image(tankBack, 0, 70);
+    this.aquariumGraphic.image(tankBack, 0, 50);
+    this.aquariumGraphic.image(tankFilter, 0, -30);
   }
 
   updateBubbles() {
