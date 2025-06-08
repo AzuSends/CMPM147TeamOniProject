@@ -71,6 +71,7 @@ function setup() {
   BPdots = loadFont("assets/font/BPdotsSquareBold.otf");
 
   rod = new RodCast(posX, posY, 100);
+  displayfishes();
 
   //createButton("clear saveData").mousePressed(() => localStorage.clear());//debugging
   loadGameState();
@@ -121,7 +122,6 @@ function draw() {
 
   //drawAcquariumFish();
   image(glassOverlay, 0, h + 20);
-  // displayfishes();
   mouseHover();
   if (currentFish) {
     fishStatsDisplay();
@@ -338,6 +338,16 @@ function displayfishes() {
     descDiv.textContent = `${fish.description}`;
     descDiv.style.fontWeight = "normal";
     messageDiv.appendChild(descDiv);
+    if (fish.pixelbuffer) {
+      const img = document.createElement("img");
+      img.src = fish.pixelbuffer.canvas.toDataURL(); // Get base64 data URL from buffer
+      img.style.width = "100px"; // Optional: size styling
+      img.style.height = "auto";
+      img.style.display = "block";
+      img.style.marginTop = "0.5rem";
+      messageDiv.appendChild(img);
+    }
+
     fishContainer.appendChild(messageDiv);
   });
 }
@@ -349,6 +359,7 @@ function saveGameState() {
     seed: fish.seed,
   }));
   console.log(fishArray);
+  displayfishes();
 
   localStorage.setItem(KEY, JSON.stringify(fishArray));
 }
@@ -367,6 +378,7 @@ function loadGameState() {
       fishmagendom();
     }
     console.log(fishes);
+    displayfishes();
   }
 }
 
