@@ -144,6 +144,12 @@ class Fish {
     this.seed = seed;
     this.width = random(fishParams.minWidth, fishParams.maxWidth);
     this.height = random(fishParams.minHeight, fishParams.maxHeight);
+    if (random() < 0.02) {
+      this.width = fishParams.maxWidth * 2;
+    }
+    if (random() < 0.02) {
+      this.height = fishParams.maxHeight * 2;
+    }
     this.position;
     this.scale;
     this.direction = { x: 1, y: 0 }; // 1 == right/up, -1 == left/down
