@@ -215,17 +215,20 @@ function mouseClicked() {
 
 // animate later with scale for entire box and stars
 function fishStatsDisplay() {
+  let rectWidth = w - 20;
+  let rectHeight = h + 400 + 50;
   const textpadding = {
     minw: 40,
-    maxw: w - 80,
-    minh: h + 400 + 30,
-    maxh: h + h2 - 20,
+    maxw: rectWidth - 40,
+    minh: rectHeight + 30,
+    maxh: rectHeight - 20,
   };
   push();
   stroke("#6495ed");
   fill("white");
-  rect(10, h + 400, w - 20, 190, 20);
+  rect(10, rectHeight, rectWidth, 190, 20);
   pop();
+  fill("black");
   textAlign(LEFT, TOP);
   noStroke();
   textSize(36);
