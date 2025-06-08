@@ -16,10 +16,23 @@ class Aquarium {
     this.bubbles = [];
     this.bubbleLayer = createGraphics(w, h);
     this.bubbleLayer.noStroke();
+
+    this.grassLayer = createGraphics(w, h);
+    this.grassBlades = [];
+    for (let i = 0; i < 50; i++) {
+      let x = random(30, w - 30);
+      let y = h; // near bottom of tank
+      let segments = floor(random(20, 40));
+      let length = random(5, 15);
+      this.grassBlades.push(new GrassBlade(x, y, segments, length));
+
+    }
   }
 
   draw() {
     image(this.aquariumGraphic, 0, h + 70);
+    this.updateGrass();
+    this.drawGrass();
     this.updateBubbles();
     this.drawBubbles();
     this.drawFish();
@@ -166,6 +179,18 @@ class Aquarium {
     image(this.bubbleLayer, 0, h + 70);
   }
 
+  updateGrass() {
+    this.grassLayer.clear();
+    for (let blade of this.grassBlades) {
+      blade.update();
+      blade.display(this.grassLayer);
+    }
+  }
+
+  drawGrass() {
+    image(this.grassLayer, 0, h + 70);
+  }
+
 }
 
 //bubble class
@@ -191,4 +216,53 @@ class Bubble {
   offScreen() {
     return this.y + this.r < 0;
   }
+}
+
+//inspired by and referenced https://openprocessing.org/sketch/2353570
+class GrassBlade {
+  constructor(x, y, segments = 20, len = 5) {
+    this.base = createVector(x, y);
+    this.positions = [];
+    this.segLen = len;
+    this.segments = segments;
+    this.noiseOffset = random(1000);
+    this.r = 0;
+    this.g = random(100, 200);
+    this.b = random(50, 100);
+
+    for (let i = 0; i < segments; i++) {
+      this.positions.push(createVector(x, y - i * this.segLen));
+    }
+  }
+
+  update() {
+    this.noiseOffset += 0.05;
+    let amp = 2;
+
+    for (let i = 1; i < this.positions.length; i++) {
+      let sway = (noise(this.noiseOffset + i * 0.3) - 0.5) * amp * i * 0.05;
+      this.positions[i].x += sway;
+
+      let dir = p5.Vector.sub(this.positions[i], this.positions[i - 1])
+        .normalize()
+        .mult(this.segLen);
+      this.positions[i] = p5.Vector.add(this.positions[i - 1], dir);
+    }
+  }
+
+  display(pg) {
+    let bladeCol = pg.color(this.r, this.g, this.b);
+    pg.stroke(bladeCol);
+    for (let i = 0; i < this.positions.length - 1; i++) {
+      pg.strokeWeight(map(i, 0, this.positions.length, 10, 2));
+      pg.stroke(bladeCol);
+      pg.line(
+        this.positions[i].x,
+        this.positions[i].y,
+        this.positions[i + 1].x,
+        this.positions[i + 1].y
+      );
+    }
+  }
+
 }
