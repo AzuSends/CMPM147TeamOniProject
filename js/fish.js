@@ -57,6 +57,73 @@ const ColorSchemes = {
   },
 };
 
+const TextureWeights = {
+  noise: {
+    analoghorror: 1,
+    cow: 4,
+    freckle: 2,
+    rainbow: 4,
+  },
+  random: {
+    rainbow: 1,
+    dots: 5,
+    freckle: 5,
+  },
+  stripe: {
+    horizontal: 4,
+    vertical: 3,
+    grid: 2,
+    checkerboard: 1,
+  },
+  none: {
+    none: 0,
+  }, // no textures
+  gradient: {
+    horizontal: 1,
+    vertical: 1,
+  },
+};
+
+const PatternWeights = {
+  noise: 3,
+  random: 1,
+  stripe: 2,
+  none: 3,
+  gradient: 2,
+};
+
+function weightedRandom(options) {
+  let totalWeight = 0;
+  for (let key in options) {
+    totalWeight += options[key];
+  }
+
+  let rand = random(totalWeight);
+  for (let key in options) {
+    rand -= options[key];
+    if (rand <= 0) {
+      return key;
+    }
+  }
+}
+
+function calculateRarity(fish) {
+  let patternRarity =
+    (1 / PatternWeights[fish.bodypattern] +
+      1 / PatternWeights[fish.finpattern]) /
+    2;
+  let textureRarity =
+    (1 / TextureWeights[fish.bodypattern][fish.bodytexture] +
+      1 / TextureWeights[fish.finpattern][fish.fintexture]) /
+    2;
+  if (textureRarity == Infinity) textureRarity = 0;
+  let combscore = (patternRarity + textureRarity) / 2;
+  let rarity = ceil(map(combscore * 1.5, 0, 1, 0, 6));
+
+  console.log(combscore, rarity, patternRarity, textureRarity);
+  return rarity;
+}
+
 class Fish {
   constructor(seed, name, desc) {
     if (seed) randomSeed(seed);
@@ -70,7 +137,6 @@ class Fish {
       this.description = fishtext.getdesc();
       //console.log(this.description);
     }
-    this.rarity = ceil(random(0, 5));
     this.aggresion = floor(random(0, 765));
     this.diet = floor(random(0, 2));
     this.hunger = random();
@@ -126,26 +192,25 @@ class Fish {
     this.hovered = false;
     this.level = 10; // pixelation level
 
-    const TextureOptions = {
-      noise: ["analoghorror", "cow", "freckle", "rainbow"],
-      random: ["rainbow", "dots", "freckle"],
-      stripe: ["horizontal", "vertical", "grid", "checkerboard"],
-      none: [],
-      gradient: ["horizontal", "vertical"],
-    };
-    // choose random element from Texture Options
-    this.bodypattern = random(Object.keys(TextureOptions));
-    this.bodytexture = random(TextureOptions[this.bodypattern]);
+    this.bodypattern = weightedRandom(PatternWeights);
+    this.bodytexture = weightedRandom(TextureWeights[this.bodypattern]);
 
     this.stripeX = floor(random(2, 9));
     this.stripeY = floor(random(2, 9));
 
-    // for testing purposes
+    this.finpattern = weightedRandom(PatternWeights);
+    this.fintexture = weightedRandom(TextureWeights[this.finpattern]);
 
-    this.finpattern = random(Object.keys(TextureOptions));
-    this.fintexture = random(TextureOptions[this.finpattern]);
+    this.rarity = calculateRarity(this);
 
-    console.log(this.bodypattern, this.bodytexture, this.colorScheme);
+    console.log(
+      this.bodypattern,
+      this.bodytexture,
+      this.finpattern,
+      this.fintexture,
+      this.colorScheme,
+      this.rarity
+    );
 
     this.body = {
       points: {
