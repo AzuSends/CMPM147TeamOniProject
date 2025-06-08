@@ -84,3 +84,9 @@ h2 {
   display: "block";
   margin-top: 0.5rem;
 }
+
+.fish {
+  font-family: "editu";
+  margin-bottom: 0.5rem;
+  font-size: xx-large;
+}
