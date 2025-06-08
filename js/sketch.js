@@ -331,20 +331,22 @@ function displayfishes() {
   fishContainer.innerHTML = "";
   fishes.forEach((fish) => {
     const messageDiv = document.createElement("div");
-    messageDiv.style.border = "solid #000000";
-    messageDiv.style.fontWeight = "bold";
-    messageDiv.textContent = `${fish.name}`;
+    messageDiv.className = "fish-display";
+    const textDiv = document.createElement("div");
+    textDiv.className = "fish-text";
+    const nameDiv = document.createElement("div");
+    const rarity = "⭐".repeat(fish.rarity);
+    nameDiv.innerHTML = `${fish.name} <br/> ${rarity}`;
+    textDiv.appendChild(nameDiv);
     const descDiv = document.createElement("div");
-    descDiv.textContent = `${fish.description}`;
-    descDiv.style.fontWeight = "normal";
-    messageDiv.appendChild(descDiv);
+    descDiv.className = "fish-desc";
+    descDiv.innerHTML = `${fish.description}`;
+    textDiv.appendChild(descDiv);
+    messageDiv.appendChild(textDiv);
     if (fish.pixelbuffer) {
       const img = document.createElement("img");
       img.src = fish.pixelbuffer.canvas.toDataURL(); // Get base64 data URL from buffer
-      img.style.width = "100px"; // Optional: size styling
-      img.style.height = "auto";
-      img.style.display = "block";
-      img.style.marginTop = "0.5rem";
+      img.className = "fish-img";
       messageDiv.appendChild(img);
     }
 
