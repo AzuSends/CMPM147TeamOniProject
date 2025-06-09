@@ -72,6 +72,10 @@ class RodCast {
     strokeWeight(10)
     stroke("red")
     point(this.arr[this.numPoints].x, this.arr[this.numPoints].y)
+    bobber = {
+      x: this.arr[this.numPoints].x,
+      y: this.arr[this.numPoints].y
+    };
   }
   reset() {
     if (!this.canReset) {

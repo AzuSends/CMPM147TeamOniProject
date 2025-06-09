@@ -47,6 +47,8 @@ let glassOverlay;
 let tankBack;
 let tankFilter;
 
+let bobber;
+
 let container;
 
 function setup() {
@@ -122,8 +124,10 @@ function draw() {
       fishScale += 0.0055 * catchSpeed;
     }
   } else {
-    fishx = 140;
-    fishy = 450;
+    //fishx = 140;
+    //fishy = 450;
+    fishx = bobber.x;
+    fishy = bobber.y;
     fishScale = 0.1;
   }
 
