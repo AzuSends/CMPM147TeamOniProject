@@ -114,7 +114,9 @@ function draw() {
 
   if (!casting) {
     let newestFish = fishes[fishes.length - 1];
-    newestFish.hovered = true;
+    if (newestFish != undefined) {
+      newestFish.hovered = true;
+    }
     drawNewestFish(fishx, fishy, fishScale);
     if (fishx < 500) {
       fishx += 5 * catchSpeed;
