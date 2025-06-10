@@ -401,6 +401,19 @@ class Fish {
     );
   }
 
+  highlight(){
+    stroke(this.mainColor);
+    strokeWeight(3);
+    fill(this.secondaryColor);
+    star(
+      0,
+      0,
+      this.width * 0.8 * this.scale,
+      this.height * 0.8 * this.scale,
+      10
+    );
+  }
+
   draw(midpoint, scaleRatio = 1, flip = false) {
     if (midpoint) this.position = midpoint;
     this.scale = scaleRatio;
@@ -409,6 +422,11 @@ class Fish {
     translate(this.position.x, this.position.y);
     let flipFactor = flip ? -1 : 1;
     if (this.hovered) {
+      if (!this.rotation) this.rotation = 0;
+      this.rotation += 0.05;
+
+      push();
+      rotate(this.rotation);
       stroke(this.mainColor);
       strokeWeight(3);
       fill(this.secondaryColor);
@@ -419,6 +437,7 @@ class Fish {
         this.height * 0.8 * this.scale,
         10
       );
+      pop();
     }
     scale(flipFactor * this.scale, this.scale);
     // this.debugbox();
