@@ -415,3 +415,12 @@ function loadGameState() {
 function fishmagendom() {
   localStorage.clear();
 }
+
+document.addEventListener("keydown", (event) =>{
+  if(event.key == "Delete"){
+    if(confirm("Do you wish to release your fish?")==true){
+      fishmagendom();
+      location.reload();
+    }
+  }
+});
